@@ -1,2 +1,2 @@
-# walrust
-Terminal based wallpaper changer for Hyprland written in Rust
+# Walrust
+Terminal based wallpaper changer for Hyprpaper written in Rust
