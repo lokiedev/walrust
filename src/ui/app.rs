@@ -52,6 +52,6 @@ impl App {
                 .areas(inner_content_area);
 
         self.selector.draw(frame, selector_area);
-        self.preview.draw(frame, preview_area);
+        self.preview.draw(None, frame, preview_area);
     }
 }
