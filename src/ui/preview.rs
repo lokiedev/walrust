@@ -4,6 +4,8 @@ use ratatui::{
     widgets::{Block, Borders},
 };
 
+use crate::core::Wallpaper;
+
 pub struct Preview {}
 
 impl Preview {
@@ -11,7 +13,7 @@ impl Preview {
         Preview {}
     }
 
-    pub fn draw(&mut self, frame: &mut Frame, section: Rect) {
+    pub fn draw(&mut self, wallpaper: Wallpaper, frame: &mut Frame, section: Rect) {
         let bordered_block = Block::new()
             .borders(Borders::RIGHT)
             .title("Wallpaper Preview");
