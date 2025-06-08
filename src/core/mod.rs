@@ -1,5 +1,5 @@
-pub mod file;
+pub mod loader;
 pub mod wallpaper;
 
-pub use file::*;
+pub use loader::*;
 pub use wallpaper::*;

@@ -8,7 +8,10 @@ use ratatui::{
     widgets::Block,
 };
 
-use crate::ui::{Preview, Selector};
+use crate::{
+    core::Loader,
+    ui::{Preview, Selector},
+};
 
 pub struct App {
     selector: Selector,
@@ -18,7 +21,10 @@ pub struct App {
 impl App {
     pub fn new() -> Self {
         let preview = Preview::new();
-        let selector = Selector::new();
+        let selector = Selector::new(
+            Loader::wallpaper("/home/ogtrz/pictures/wallpapers/")
+                .expect("Failed to load wallpaper"),
+        );
 
         App { selector, preview }
     }

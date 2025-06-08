@@ -1,4 +1,8 @@
-use ratatui::{Frame, layout::Rect};
+use ratatui::{
+    Frame,
+    layout::Rect,
+    widgets::{List, ListItem, Widget},
+};
 
 use crate::core::Wallpaper;
 
@@ -8,14 +12,21 @@ pub struct Selector {
 }
 
 impl Selector {
-    pub fn new() -> Self {
+    pub fn new(wallpapers: Vec<Wallpaper>) -> Self {
         Selector {
             selected: 0,
-            wallpapers: Vec::new(),
+            wallpapers,
         }
     }
 
     pub fn draw(&mut self, frame: &mut Frame, section: Rect) {
         // TODO: Implement selector UI
+
+        List::new(
+            self.wallpapers
+                .iter()
+                .map(|i| ListItem::from(i.name.to_owned())),
+        )
+        .render(section, frame.buffer_mut());
     }
 }
