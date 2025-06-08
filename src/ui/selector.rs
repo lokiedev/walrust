@@ -1,7 +1,7 @@
 use ratatui::{
     Frame,
     layout::Rect,
-    widgets::{List, ListItem, Widget},
+    widgets::{List, ListItem, ListState, Widget},
 };
 
 use crate::core::Wallpaper;
@@ -9,6 +9,7 @@ use crate::core::Wallpaper;
 pub struct Selector {
     pub wallpapers: Vec<Wallpaper>,
     pub selected: u8,
+    pub list_state: ListState,
 }
 
 impl Selector {
@@ -16,17 +17,19 @@ impl Selector {
         Selector {
             selected: 0,
             wallpapers,
+            list_state: ListState::default(),
         }
     }
 
     pub fn draw(&mut self, frame: &mut Frame, section: Rect) {
         // TODO: Implement selector UI
 
-        List::new(
+        let wallpaper_list = List::new(
             self.wallpapers
                 .iter()
                 .map(|i| ListItem::from(i.name.to_owned())),
-        )
-        .render(section, frame.buffer_mut());
+        );
+
+        frame.render_stateful_widget(wallpaper_list, section, &mut self.list_state);
     }
 }
