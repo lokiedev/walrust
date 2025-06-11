@@ -1,16 +1,16 @@
 mod core;
 mod ui;
 
-use std::io;
+use std::error::Error;
 use ui::App;
 
-fn main() -> io::Result<()> {
+fn main() -> Result<(), Box<dyn Error>> {
     let _ = color_eyre::install();
 
     let terminal = ratatui::init();
-    let app = App::new().run(terminal);
+    let app = App::new()?.run(terminal);
 
     ratatui::restore();
 
-    app
+    Ok(app?)
 }

@@ -1,10 +1,11 @@
+use crossterm::event::{KeyCode, KeyEvent};
 use ratatui::{
     Frame,
     layout::Rect,
-    widgets::{List, ListItem, ListState, Widget},
+    widgets::{List, ListItem, ListState},
 };
 
-use crate::core::Wallpaper;
+use crate::core::{Action, Wallpaper};
 
 pub struct Selector {
     pub wallpapers: Vec<Wallpaper>,
@@ -21,6 +22,10 @@ impl Selector {
         }
     }
 
+    pub fn init(&mut self) {
+        self.list_state.select_first();
+    }
+
     pub fn draw(&mut self, frame: &mut Frame, section: Rect) {
         // TODO: Implement selector UI
 
@@ -28,8 +33,17 @@ impl Selector {
             self.wallpapers
                 .iter()
                 .map(|i| ListItem::from(i.name.to_owned())),
-        );
+        )
+        .highlight_symbol("> ");
 
         frame.render_stateful_widget(wallpaper_list, section, &mut self.list_state);
+    }
+
+    pub fn handle_key(&mut self, key: KeyEvent) -> Option<Action> {
+        match key.code {
+            KeyCode::Up | KeyCode::Char('k') => Some(Action::PreviousItem),
+            KeyCode::Down | KeyCode::Char('j') => Some(Action::NextItem),
+            _ => None,
+        }
     }
 }

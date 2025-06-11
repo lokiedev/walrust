@@ -1,17 +1,15 @@
-use std::io;
-
+use crate::{
+    core::{Action, Loader},
+    ui::{Preview, Selector},
+};
+use crossterm::event::{self, Event, KeyCode, KeyEvent};
 use ratatui::{
     DefaultTerminal, Frame,
-    crossterm::event::{self, Event},
     layout::{Constraint, Layout},
     text::Line,
     widgets::Block,
 };
-
-use crate::{
-    core::Loader,
-    ui::{Preview, Selector},
-};
+use std::{error::Error, io, path::PathBuf};
 
 pub struct App {
     selector: Selector,
@@ -19,22 +17,34 @@ pub struct App {
 }
 
 impl App {
-    pub fn new() -> Self {
-        let preview = Preview::new();
-        let selector = Selector::new(
-            Loader::wallpaper("/home/ogtrz/pictures/wallpapers/")
-                .expect("Failed to load wallpaper"),
-        );
+    pub fn new() -> Result<Self, Box<dyn Error>> {
+        let wallpaper_dir: PathBuf = get_home_dir()?.join("pictures/wallpapers");
+        let wallpaper_dir_str = wallpaper_dir
+            .to_str()
+            .ok_or("Failed to convert home directory path to string")?;
+        let wallpapers = Loader::wallpaper(wallpaper_dir_str)?;
 
-        App { selector, preview }
+        let mut selector = Selector::new(wallpapers);
+        let preview = Preview::new();
+
+        selector.init();
+
+        Ok(App { selector, preview })
     }
 
     pub fn run(&mut self, mut terminal: DefaultTerminal) -> io::Result<()> {
         loop {
-            terminal.draw(|frame| self.draw(frame));
+            let _ = terminal.draw(|frame| self.draw(frame));
+
             if let Event::Key(key) = event::read()? {
-                match key.code {
-                    _ => break,
+                let action = self.handle_key(key);
+
+                match action {
+                    Some(Action::Quit) => break,
+                    Some(Action::NextItem) => self.selector.list_state.select_next(),
+                    Some(Action::PreviousItem) => self.selector.list_state.select_previous(),
+                    None => {}
+                    _ => {}
                 }
             }
         }
@@ -60,4 +70,25 @@ impl App {
         self.selector.draw(frame, selector_area);
         self.preview.draw(None, frame, preview_area);
     }
+
+    fn handle_key(&mut self, key: KeyEvent) -> Option<Action> {
+        // Handle global key
+        match key.code {
+            KeyCode::Char('q') => return Some(Action::Quit),
+            _ => {}
+        }
+
+        // Handle key for specific section
+        if let Some(action) = self.selector.handle_key(key) {
+            return Some(action);
+        }
+
+        None
+    }
+}
+
+fn get_home_dir() -> Result<PathBuf, Box<dyn Error>> {
+    let home_dir_path = std::env::home_dir().ok_or("Could not determine home directory")?;
+
+    Ok(home_dir_path)
 }
