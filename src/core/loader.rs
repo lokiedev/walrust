@@ -1,12 +1,13 @@
 use crate::core::wallpaper::Wallpaper;
+use simplelog::*;
 use std::fs;
 use std::io;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 pub struct Loader {}
 
 impl Loader {
-    pub fn wallpaper(path: &str) -> io::Result<Vec<Wallpaper>> {
+    pub fn load_wallpaper(path: &str) -> io::Result<Vec<Wallpaper>> {
         let path = Path::new(path);
 
         if !path.is_dir() {
@@ -31,7 +32,7 @@ impl Loader {
                     Err(_) => continue,
                 };
 
-                if is_image(&file_name) {
+                if Self::is_image_file(&file_name) {
                     files.push(Wallpaper::new(
                         file_name,
                         entry.path().to_string_lossy().into_owned(),
@@ -42,14 +43,32 @@ impl Loader {
 
         Ok(files)
     }
-}
 
-fn is_image(file_name: &str) -> bool {
-    const IMAGE_EXTENSIONS: &[&str] = &[".jpg", ".jpeg", ".png", ".webp"];
+    pub fn load_logger(
+        file_name: String,
+        folder_path: PathBuf,
+        level_filter: LevelFilter,
+    ) -> io::Result<()> {
+        if !folder_path.exists() {
+            fs::create_dir_all(&folder_path)?;
+        }
 
-    let file_name_lowercase = file_name.to_ascii_lowercase();
+        let _ = CombinedLogger::init(vec![WriteLogger::new(
+            level_filter,
+            Config::default(),
+            fs::File::create(folder_path.join(file_name))?,
+        )]);
 
-    IMAGE_EXTENSIONS
-        .iter()
-        .any(|&ext| file_name_lowercase.ends_with(ext))
+        Ok(())
+    }
+
+    fn is_image_file(file_name: &str) -> bool {
+        const IMAGE_EXTENSIONS: &[&str] = &[".jpg", ".jpeg", ".png", ".webp"];
+
+        let file_name_lowercase = file_name.to_ascii_lowercase();
+
+        IMAGE_EXTENSIONS
+            .iter()
+            .any(|&ext| file_name_lowercase.ends_with(ext))
+    }
 }

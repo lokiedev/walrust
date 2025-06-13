@@ -1,3 +1,4 @@
+use crate::core::{Action, Wallpaper};
 use crossterm::event::{KeyCode, KeyEvent};
 use ratatui::{
     Frame,
@@ -5,18 +6,14 @@ use ratatui::{
     widgets::{List, ListItem, ListState},
 };
 
-use crate::core::{Action, Wallpaper};
-
 pub struct Selector {
     pub wallpapers: Vec<Wallpaper>,
-    pub selected: u8,
     pub list_state: ListState,
 }
 
 impl Selector {
     pub fn new(wallpapers: Vec<Wallpaper>) -> Self {
         Selector {
-            selected: 0,
             wallpapers,
             list_state: ListState::default(),
         }
@@ -43,7 +40,18 @@ impl Selector {
         match key.code {
             KeyCode::Up | KeyCode::Char('k') => Some(Action::PreviousItem),
             KeyCode::Down | KeyCode::Char('j') => Some(Action::NextItem),
+            KeyCode::Enter => {
+                let selected_wallpaper = self.get_selected_wallpaper()?;
+
+                Some(Action::SelectItem(selected_wallpaper.path.clone()))
+            }
             _ => None,
         }
+    }
+
+    pub fn get_selected_wallpaper(&mut self) -> Option<&Wallpaper> {
+        self.list_state
+            .selected()
+            .and_then(|i| self.wallpapers.get(i))
     }
 }

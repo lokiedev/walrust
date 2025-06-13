@@ -1,5 +1,5 @@
 use crate::{
-    core::{Action, Loader},
+    core::{Action, Loader, change_wallpaper, wallpaper},
     ui::{Preview, Selector},
 };
 use crossterm::event::{self, Event, KeyCode, KeyEvent};
@@ -9,42 +9,52 @@ use ratatui::{
     text::Line,
     widgets::Block,
 };
-use std::{error::Error, io, path::PathBuf};
+use std::{error::Error, io, path::PathBuf, time::Duration};
+
+const POLL_TIMEOUT_MS: u64 = 16;
+const PREVIEW_WIDTH_PERCENT: u16 = 40;
+const SELECTOR_WIDTH_PERCENT: u16 = 60;
 
 pub struct App {
     selector: Selector,
     preview: Preview,
+    should_quit: bool,
 }
 
 impl App {
     pub fn new() -> Result<Self, Box<dyn Error>> {
+        log::info!("App object created");
+
         let wallpaper_dir: PathBuf = get_home_dir()?.join("pictures/wallpapers");
         let wallpaper_dir_str = wallpaper_dir
             .to_str()
             .ok_or("Failed to convert home directory path to string")?;
-        let wallpapers = Loader::wallpaper(wallpaper_dir_str)?;
+        let wallpapers = Loader::load_wallpaper(wallpaper_dir_str)?;
 
         let mut selector = Selector::new(wallpapers);
-        let preview = Preview::new();
 
         selector.init();
 
-        Ok(App { selector, preview })
+        Ok(App {
+            selector,
+            preview: Preview::new()?,
+            should_quit: false,
+        })
     }
 
     pub fn run(&mut self, mut terminal: DefaultTerminal) -> io::Result<()> {
-        loop {
+        while !self.should_quit {
             let _ = terminal.draw(|frame| self.draw(frame));
 
-            if let Event::Key(key) = event::read()? {
-                let action = self.handle_key(key);
+            if let Ok(available) = crossterm::event::poll(Duration::from_millis(16)) {
+                if !available {
+                    continue;
+                }
 
-                match action {
-                    Some(Action::Quit) => break,
-                    Some(Action::NextItem) => self.selector.list_state.select_next(),
-                    Some(Action::PreviousItem) => self.selector.list_state.select_previous(),
-                    None => {}
-                    _ => {}
+                if let Event::Key(key) = event::read()? {
+                    if let Some(action) = self.handle_key(key) {
+                        self.handle_action(action);
+                    }
                 }
             }
         }
@@ -63,22 +73,49 @@ impl App {
         let inner_content_area = border_block.inner(main_layout_area);
         frame.render_widget(border_block, main_layout_area);
 
-        let [preview_area, selector_area] =
-            Layout::horizontal(vec![Constraint::Percentage(30), Constraint::Percentage(70)])
-                .areas(inner_content_area);
+        let [preview_area, selector_area] = Layout::horizontal(vec![
+            Constraint::Percentage(PREVIEW_WIDTH_PERCENT),
+            Constraint::Percentage(SELECTOR_WIDTH_PERCENT),
+        ])
+        .areas(inner_content_area);
 
         self.selector.draw(frame, selector_area);
-        self.preview.draw(None, frame, preview_area);
+
+        let selected_wallpaper = self.selector.get_selected_wallpaper();
+        let _ = self.preview.draw(selected_wallpaper, frame, preview_area);
+    }
+
+    fn handle_action(&mut self, action: Action) -> Result<(), Box<dyn Error>> {
+        match action {
+            Action::Quit => self.should_quit = true,
+            Action::NextItem => {
+                log::debug!("Next item action");
+                self.selector.list_state.select_next();
+            }
+            Action::PreviousItem => {
+                log::debug!("Previous item action");
+                self.selector.list_state.select_previous();
+            }
+            Action::SelectItem(wallpaper_path) => {
+                log::debug!("Select item action");
+                if let Err(e) = change_wallpaper(wallpaper_path.as_str()) {
+                    log::error!("{}", e);
+                }
+            }
+        }
+
+        Ok(())
     }
 
     fn handle_key(&mut self, key: KeyEvent) -> Option<Action> {
         // Handle global key
         match key.code {
             KeyCode::Char('q') => return Some(Action::Quit),
+            // Handle other global key here
             _ => {}
         }
 
-        // Handle key for specific section
+        // Handle specific area key
         if let Some(action) = self.selector.handle_key(key) {
             return Some(action);
         }
