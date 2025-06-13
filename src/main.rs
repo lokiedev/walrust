@@ -10,12 +10,11 @@ const LOG_FOLDER: &str = ".cache/walrust";
 const LOG_NAME: &str = "walrust.log";
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let _ = Loader::load_logger(
+    Loader::load_logger(
         LOG_NAME,
         &get_home_dir()?.join(LOG_FOLDER),
         log::LevelFilter::Debug,
-    );
-
+    )?;
     log::info!("simplelog initialized");
 
     let terminal = ratatui::init();
