@@ -1,5 +1,6 @@
 use crate::core::wallpaper::Wallpaper;
 use simplelog::*;
+use std::error::Error;
 use std::fs;
 use std::io;
 use std::path::{Path, PathBuf};
@@ -45,19 +46,22 @@ impl Loader {
     }
 
     pub fn load_logger(
-        file_name: String,
-        folder_path: PathBuf,
+        file_name: &str,
+        folder_path: &PathBuf,
         level_filter: LevelFilter,
-    ) -> io::Result<()> {
+    ) -> Result<(), Box<dyn Error>> {
         if !folder_path.exists() {
             fs::create_dir_all(&folder_path)?;
         }
 
-        let _ = CombinedLogger::init(vec![WriteLogger::new(
+        let log_file_path = folder_path.join(file_name);
+        let log_file = fs::File::create(log_file_path)?;
+
+        CombinedLogger::init(vec![WriteLogger::new(
             level_filter,
             Config::default(),
-            fs::File::create(folder_path.join(file_name))?,
-        )]);
+            log_file,
+        )])?;
 
         Ok(())
     }

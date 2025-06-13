@@ -11,8 +11,8 @@ const LOG_NAME: &str = "walrust.log";
 
 fn main() -> Result<(), Box<dyn Error>> {
     let _ = Loader::load_logger(
-        LOG_NAME.to_string(),
-        get_home_dir()?.join(LOG_FOLDER),
+        LOG_NAME,
+        &get_home_dir()?.join(LOG_FOLDER),
         log::LevelFilter::Debug,
     );
 
