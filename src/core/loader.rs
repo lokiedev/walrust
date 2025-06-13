@@ -51,7 +51,7 @@ impl Loader {
         level_filter: LevelFilter,
     ) -> Result<(), Box<dyn Error>> {
         if !folder_path.exists() {
-            fs::create_dir_all(&folder_path)?;
+            fs::create_dir_all(folder_path)?;
         }
 
         let log_file_path = folder_path.join(file_name);
