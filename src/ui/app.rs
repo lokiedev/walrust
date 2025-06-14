@@ -81,17 +81,15 @@ impl App {
     }
 
     fn handle_events(&mut self) -> AppResult<()> {
-        if let Ok(available) = crossterm::event::poll(Duration::from_millis(POLL_TIMEOUT_MS)) {
-            if !available {
-                return Ok(());
-            }
+        if !crossterm::event::poll(Duration::from_millis(POLL_TIMEOUT_MS))? {
+            return Ok(());
+        }
 
-            if let Event::Key(key) = event::read()? {
-                if let Some(action) = self.handle_key(key) {
-                    self.handle_action(action)?;
-                }
+        if let Event::Key(key) = event::read()? {
+            if let Some(action) = self.handle_key(key) {
+                self.handle_action(action)?;
             }
-        };
+        }
 
         Ok(())
     }
