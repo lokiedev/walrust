@@ -9,14 +9,11 @@ use std::path::{Path, PathBuf};
 pub struct Loader {}
 
 impl Loader {
-    pub fn load_wallpaper(path: &str) -> io::Result<Vec<Wallpaper>> {
+    pub fn load_wallpaper(path: &str) -> Result<Vec<Wallpaper>, Box<dyn Error>> {
         let path = Path::new(path);
 
         if !path.is_dir() {
-            return Err(io::Error::new(
-                io::ErrorKind::InvalidInput,
-                format!("Path: {:?}, is not a valid directory!", path),
-            ));
+            return Err("Path is not a valid directory".into());
         }
 
         let entries = fs::read_dir(path)?;

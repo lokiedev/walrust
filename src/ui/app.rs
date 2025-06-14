@@ -1,5 +1,5 @@
 use crate::{
-    core::{Action, Loader, change_wallpaper},
+    core::{Action, Loader, Wallpaper, change_wallpaper},
     ui::{Preview, Selector},
 };
 use crossterm::event::{self, Event, KeyCode, KeyEvent};
@@ -9,11 +9,12 @@ use ratatui::{
     text::Line,
     widgets::Block,
 };
-use std::{error::Error, path::PathBuf, time::Duration};
+use std::{error::Error, io, path::PathBuf, time::Duration};
 
 const POLL_TIMEOUT_MS: u64 = 33;
 const PREVIEW_WIDTH_PERCENT: u16 = 40;
 const SELECTOR_WIDTH_PERCENT: u16 = 60;
+const DEFAULT_WALLPAPER_PATH: &str = "pictures/wallpapers";
 
 static VERTICAL_CONSTRAINT: [Constraint; 1] = [Constraint::Fill(1)];
 static HORIZONTAL_CONTRAINT: [Constraint; 2] = [
@@ -33,12 +34,7 @@ impl App {
     pub fn new() -> AppResult<Self> {
         log::info!("App object created");
 
-        let wallpaper_dir: PathBuf = get_home_dir()?.join("pictures/wallpapers");
-        let wallpaper_dir_str = wallpaper_dir
-            .to_str()
-            .ok_or("Failed to convert home directory path to string")?;
-        let wallpapers = Loader::load_wallpaper(wallpaper_dir_str)?;
-
+        let wallpapers = Self::load_wallpaper(DEFAULT_WALLPAPER_PATH)?;
         let mut selector = Selector::new(wallpapers);
 
         selector.init();
@@ -131,6 +127,14 @@ impl App {
         }
 
         None
+    }
+
+    fn load_wallpaper(dir_path: &str) -> AppResult<Vec<Wallpaper>> {
+        let wallpaper_dir: PathBuf = get_home_dir()?.join(dir_path);
+        let wallpaper_dir_str = wallpaper_dir
+            .to_str()
+            .ok_or("Failed to convert home directory path to string")?;
+        Loader::load_wallpaper(wallpaper_dir_str)
     }
 }
 
