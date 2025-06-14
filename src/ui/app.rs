@@ -1,5 +1,5 @@
 use crate::{
-    core::{Action, Loader, Wallpaper, change_wallpaper},
+    core::{Action, Loader, Wallpaper, change_wallpaper, get_home_dir},
     ui::{Preview, Selector},
 };
 use crossterm::event::{self, Event, KeyCode, KeyEvent};
@@ -9,7 +9,7 @@ use ratatui::{
     text::Line,
     widgets::Block,
 };
-use std::{error::Error, io, path::PathBuf, time::Duration};
+use std::{error::Error, path::PathBuf, time::Duration};
 
 const POLL_TIMEOUT_MS: u64 = 33;
 const PREVIEW_WIDTH_PERCENT: u16 = 40;
@@ -32,21 +32,24 @@ pub struct App {
 
 impl App {
     pub fn new() -> AppResult<Self> {
-        log::info!("App object created");
-
+        // Initializing Selector component
         let wallpapers = Self::load_wallpaper(DEFAULT_WALLPAPER_PATH)?;
         let mut selector = Selector::new(wallpapers);
-
         selector.init();
 
+        // Initializing Preview component
+        let preview = Preview::new()?;
+
+        log::info!("App object created");
         Ok(App {
             selector,
-            preview: Preview::new()?,
+            preview,
             should_quit: false,
         })
     }
 
     pub fn run(&mut self, mut terminal: DefaultTerminal) -> AppResult<()> {
+        // Main loop
         while !self.should_quit {
             let _ = terminal.draw(|frame| self.draw(frame));
 
@@ -57,23 +60,31 @@ impl App {
     }
 
     fn draw(&mut self, frame: &mut Frame) {
+        let inner_content_area = Self::draw_main_border(frame);
+
+        let [preview_area, selector_area] =
+            Layout::horizontal(HORIZONTAL_CONTRAINT).areas(inner_content_area);
+
+        // Draw selector components
+        self.selector.draw(frame, selector_area);
+
+        // Draw preview components
+        let selected_wallpaper = self.selector.get_selected_wallpaper();
+        let _ = self.preview.draw(selected_wallpaper, frame, preview_area);
+    }
+
+    fn draw_main_border(frame: &mut Frame) -> ratatui::layout::Rect {
         let [main_layout_area] = Layout::vertical(VERTICAL_CONSTRAINT)
             .margin(1)
             .areas(frame.area());
         let border_block = Block::bordered()
             .border_type(ratatui::widgets::BorderType::Rounded)
             .title(Line::from("Select Wallpaper").centered());
-
         let inner_content_area = border_block.inner(main_layout_area);
+
         frame.render_widget(border_block, main_layout_area);
 
-        let [preview_area, selector_area] =
-            Layout::horizontal(HORIZONTAL_CONTRAINT).areas(inner_content_area);
-
-        self.selector.draw(frame, selector_area);
-
-        let selected_wallpaper = self.selector.get_selected_wallpaper();
-        let _ = self.preview.draw(selected_wallpaper, frame, preview_area);
+        inner_content_area
     }
 
     fn handle_events(&mut self) -> AppResult<()> {
@@ -136,9 +147,4 @@ impl App {
             .ok_or("Failed to convert home directory path to string")?;
         Loader::load_wallpaper(wallpaper_dir_str)
     }
-}
-
-#[inline]
-fn get_home_dir() -> AppResult<PathBuf> {
-    std::env::home_dir().ok_or("Could not determine home directory".into())
 }

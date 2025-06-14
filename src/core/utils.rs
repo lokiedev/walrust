@@ -1,14 +1,12 @@
 use std::error::Error;
-use std::io;
 use std::path::PathBuf;
 use std::process::{Command, Stdio};
 
 use serde_json::Value;
 
+#[inline]
 pub fn get_home_dir() -> Result<PathBuf, Box<dyn Error>> {
-    let home_dir_path = std::env::home_dir().ok_or("Could not determine home directory")?;
-
-    Ok(home_dir_path)
+    std::env::home_dir().ok_or("Could not determine home directory".into())
 }
 
 pub fn change_wallpaper(path: &str) -> Result<(), Box<dyn Error>> {
