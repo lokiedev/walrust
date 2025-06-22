@@ -49,7 +49,7 @@ impl Selector {
         }
     }
 
-    pub fn get_selected_wallpaper(&mut self) -> Option<&Wallpaper> {
+    pub fn get_selected_wallpaper(&self) -> Option<&Wallpaper> {
         self.list_state
             .selected()
             .and_then(|i| self.wallpapers.get(i))
