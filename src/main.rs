@@ -13,7 +13,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     Loader::load_logger(
         LOG_NAME,
         &get_home_dir()?.join(LOG_FOLDER),
-        log::LevelFilter::Debug,
+        log::LevelFilter::Info,
     )?;
     log::info!("simplelog initialized");
 
@@ -24,5 +24,5 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     ratatui::restore();
 
-    Ok(app?)
+    app
 }

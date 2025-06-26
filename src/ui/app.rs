@@ -11,7 +11,9 @@ use ratatui::{
 };
 use std::{error::Error, path::PathBuf, time::Duration};
 
-const POLL_TIMEOUT_MS: u64 = 33;
+const POLL_TIMEOUT_MS: u64 = 0;
+const THREAD_SLEEP_DURATION_MS: u64 = 16; // ~60fps
+
 const PREVIEW_WIDTH_PERCENT: u16 = 40;
 const SELECTOR_WIDTH_PERCENT: u16 = 60;
 const DEFAULT_WALLPAPER_PATH: &str = "pictures/wallpapers";
@@ -51,9 +53,11 @@ impl App {
     pub fn run(&mut self, mut terminal: DefaultTerminal) -> AppResult<()> {
         // Main loop
         while !self.should_quit {
+            self.handle_events()?;
+
             let _ = terminal.draw(|frame| self.draw(frame));
 
-            self.handle_events()?;
+            std::thread::sleep(Duration::from_millis(THREAD_SLEEP_DURATION_MS));
         }
 
         Ok(())
@@ -88,11 +92,15 @@ impl App {
     }
 
     fn handle_events(&mut self) -> AppResult<()> {
+        log::debug!("Checking event poll");
         if !crossterm::event::poll(Duration::from_millis(POLL_TIMEOUT_MS))? {
+            log::debug!("Event not available");
             return Ok(());
         }
 
         if let Event::Key(key) = event::read()? {
+            log::debug!("Key {} clicked by user", &key.code);
+
             if let Some(action) = self.handle_key(key) {
                 self.handle_action(action)?;
             }
