@@ -1,7 +1,6 @@
 use std::{
     collections::HashMap,
     error::Error,
-    fmt::format,
     sync::mpsc::{self, Receiver, Sender},
     thread,
 };
@@ -11,7 +10,7 @@ use image::ImageReader;
 use ratatui::{
     Frame,
     layout::Rect,
-    widgets::{Block, Borders, Paragraph, Widget},
+    widgets::{Block, Borders},
 };
 use ratatui_image::{StatefulImage, picker::Picker, protocol::StatefulProtocol};
 
@@ -109,7 +108,7 @@ impl Preview {
         self.process_incoming_results();
 
         if let Some(wallpaper) = wallpaper {
-            self.handle_wallpaper_rendering(wallpaper, frame, main_layout);
+            self.handle_wallpaper_rendering(wallpaper, frame, main_layout)?;
         }
 
         Ok(())

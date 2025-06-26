@@ -3,7 +3,6 @@ use simplelog::*;
 use std::error::Error;
 use std::ffi::OsStr;
 use std::fs;
-use std::io;
 use std::path::{Path, PathBuf};
 
 pub struct Loader {}
