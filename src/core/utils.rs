@@ -12,7 +12,6 @@ pub fn get_home_dir() -> Result<PathBuf, Box<dyn Error>> {
 pub fn change_wallpaper(path: &str) -> Result<(), Box<dyn Error>> {
     let unload_output = Command::new("hyprctl")
         .args(["hyprpaper", "unload", "all"])
-        .stdout(Stdio::piped())
         .stderr(Stdio::piped())
         .output()?;
 
@@ -23,7 +22,6 @@ pub fn change_wallpaper(path: &str) -> Result<(), Box<dyn Error>> {
 
     let preload_output = Command::new("hyprctl")
         .args(["hyprpaper", "preload", path])
-        .stdout(Stdio::piped())
         .stderr(Stdio::piped())
         .output()?;
 
@@ -36,7 +34,6 @@ pub fn change_wallpaper(path: &str) -> Result<(), Box<dyn Error>> {
 
     let set_wallpaper_output = Command::new("hyprctl")
         .args(["hyprpaper", "wallpaper", &format!("{},{}", monitor, path)])
-        .stdout(Stdio::piped())
         .stderr(Stdio::piped())
         .output()?;
 

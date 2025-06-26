@@ -34,12 +34,10 @@ pub struct App {
 
 impl App {
     pub fn new() -> AppResult<Self> {
-        // Create and initialize selector component
         let wallpapers = Self::load_wallpaper(DEFAULT_WALLPAPER_PATH)?;
         let mut selector = Selector::new(wallpapers);
         selector.init();
 
-        // Create preview component
         let preview = Preview::new()?;
 
         log::info!("App object created");
@@ -51,20 +49,19 @@ impl App {
     }
 
     pub fn run(&mut self, mut terminal: DefaultTerminal) -> AppResult<()> {
-        // Application main loop
         while !self.should_quit {
             self.handle_events()?;
 
+            // Render frame
             let _ = terminal.draw(|frame| self.draw(frame));
 
-            // Limit loop speed
+            // Frame rate control
             std::thread::sleep(Duration::from_millis(FRAME_DURATION_MS));
         }
 
         Ok(())
     }
 
-    // Main draw method (each UI component must has this method)
     fn draw(&mut self, frame: &mut Frame) {
         let content_area = Self::draw_border(frame);
 
