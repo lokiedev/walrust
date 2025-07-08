@@ -1,3 +1,4 @@
+use anyhow::{Result, anyhow};
 use std::error::Error;
 use std::path::PathBuf;
 use std::process::{Command, Stdio};
@@ -5,8 +6,8 @@ use std::process::{Command, Stdio};
 use serde_json::Value;
 
 #[inline]
-pub fn get_home_dir() -> Result<PathBuf, Box<dyn Error>> {
-    std::env::home_dir().ok_or("Could not determine home directory".into())
+pub fn get_home_dir() -> Result<PathBuf> {
+    std::env::home_dir().ok_or(anyhow!("Could not determine home directory"))
 }
 
 pub fn change_wallpaper(path: &str) -> Result<(), Box<dyn Error>> {
@@ -20,7 +21,7 @@ pub fn change_wallpaper(path: &str) -> Result<(), Box<dyn Error>> {
 }
 
 #[inline]
-fn run_hyprctl(args: &[&str]) -> Result<(), Box<dyn Error>> {
+fn run_hyprctl(args: &[&str]) -> Result<()> {
     Command::new("hyprctl")
         .args(args)
         .stderr(Stdio::piped())
@@ -29,7 +30,7 @@ fn run_hyprctl(args: &[&str]) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-pub fn get_monitor() -> Result<String, Box<dyn Error>> {
+pub fn get_monitor() -> Result<String> {
     let output = Command::new("hyprctl").arg("monitors").arg("-j").output()?;
 
     if output.status.success() {
@@ -39,14 +40,17 @@ pub fn get_monitor() -> Result<String, Box<dyn Error>> {
         if let Some(monitors_array) = monitors.as_array() {
             Ok(monitors_array
                 .first()
-                .ok_or("Cannot access first index of monitors_array")?["name"]
+                .ok_or(anyhow!("Cannot access first index of monitors_array"))?["name"]
                 .as_str()
-                .ok_or("Cannot convert first index of monitors_array.name to str")?
+                .ok_or(anyhow!(
+                    "Cannot convert first index of monitors_array.name to str"
+                ))?
                 .to_owned())
         } else {
-            Err("Failed to convert serde_json: Value to array".into())
+            Err(anyhow!("Failed to convert serde_json: Value to array"))
         }
     } else {
-        Err(String::from_utf8_lossy(&output.stderr).into())
+        let error_message = String::from_utf8_lossy(&output.stderr);
+        Err(anyhow!("{}", error_message))
     }
 }

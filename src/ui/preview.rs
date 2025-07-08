@@ -14,7 +14,7 @@ use ratatui::{
 };
 use ratatui_image::{StatefulImage, picker::Picker, protocol::StatefulProtocol};
 
-use crate::core::Wallpaper;
+use crate::domain::models::Wallpaper;
 
 pub struct Preview {
     path_sender: Sender<ImageRequest>,
@@ -80,7 +80,7 @@ impl Preview {
         Ok((image_path, protocol))
     }
 
-    pub fn draw(
+    pub fn render(
         &mut self,
         wallpaper: Option<&Wallpaper>,
         frame: &mut Frame,

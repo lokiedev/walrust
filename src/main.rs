@@ -1,16 +1,20 @@
-mod core;
+mod adapters;
+mod app;
+mod domain;
+mod ports;
+mod shared;
 mod ui;
 
+use adapters::utils::get_home_dir;
+use app::App;
+use shared::common_utils::load_logger;
 use std::error::Error;
-use ui::App;
-
-use crate::core::{Loader, get_home_dir};
 
 const LOG_FOLDER: &str = ".cache/walrust";
 const LOG_NAME: &str = "walrust.log";
 
 fn main() -> Result<(), Box<dyn Error>> {
-    Loader::load_logger(
+    load_logger(
         LOG_NAME,
         &get_home_dir()?.join(LOG_FOLDER),
         log::LevelFilter::Debug,
