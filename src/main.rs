@@ -1,7 +1,6 @@
 mod adapters;
 mod app;
 mod domain;
-mod ports;
 mod shared;
 mod ui;
 

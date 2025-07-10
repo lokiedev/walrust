@@ -1,5 +1,5 @@
 use crate::domain::models::Wallpaper;
-use crate::ports::WallpaperRepository;
+use crate::domain::ports::WallpaperRepository;
 use anyhow::{Result, anyhow};
 use std::{ffi::OsStr, fs, path::Path};
 

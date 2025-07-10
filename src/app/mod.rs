@@ -5,8 +5,8 @@ pub use action::*;
 use crate::{
     adapters::WallpaperDiskRepository,
     adapters::utils::get_home_dir,
-    domain::wallpaper_service::WallpaperService,
-    ports::UIComponent,
+    domain::ports::UIComponent,
+    domain::services::WallpaperService,
     ui::{Preview, Renderer, Selector},
 };
 use anyhow::{Result, anyhow};
@@ -32,8 +32,6 @@ impl App {
         let wallpaper_service = WallpaperService::new(WallpaperDiskRepository::new());
         let selector = Selector::new();
         let preview = Preview::new()?;
-
-        log::info!("App object created");
 
         let mut app = App {
             renderer: Renderer::new(preview, selector),

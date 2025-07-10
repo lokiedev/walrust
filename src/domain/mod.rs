@@ -1,2 +1,3 @@
 pub mod models;
-pub mod wallpaper_service;
+pub mod ports;
+pub mod services;

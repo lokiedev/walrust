@@ -1,5 +1,5 @@
 use crate::app::Action;
-use crate::ports::UIComponent;
+use crate::domain::ports::UIComponent;
 use crate::ui::{Preview, Selector};
 use ratatui::{
     Frame,
