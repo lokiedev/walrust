@@ -5,4 +5,4 @@ Note: Walrust is currently in active development, the software is not yet ready 
 
 ## TODO
 - **Configuration System** (Customize wallpaper path, UI color, etc.) **[WIP]**
-- **Recursive Wallpaper Listing** ((List wallpapers from subdirectories within the wallpaper path)
+- **Recursive Wallpaper Listing** (List wallpapers from subdirectories within the wallpaper path)
