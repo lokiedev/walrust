@@ -17,29 +17,29 @@ use std::{error::Error, path::PathBuf, time::Duration};
 const TARGET_FPS: u64 = 60;
 const FRAME_DURATION_MS: u64 = 1000 / TARGET_FPS; // ~60fps
 
-const DEFAULT_WALLPAPER_PATH: &str = "pictures/wallpapers";
-
 type AppResult<T> = Result<T, Box<dyn Error>>;
 
 pub struct App {
+    path: String,
     renderer: Renderer,
     wallpaper_service: WallpaperService<WallpaperDiskRepository>,
     should_quit: bool,
 }
 
 impl App {
-    pub fn new() -> AppResult<Self> {
+    pub fn new(path: String) -> AppResult<Self> {
         let wallpaper_service = WallpaperService::new(WallpaperDiskRepository::new());
         let selector = Selector::new();
         let preview = Preview::new()?;
 
         let mut app = App {
+            path,
             renderer: Renderer::new(preview, selector),
             wallpaper_service,
             should_quit: false,
         };
 
-        app.load_wallpaper(DEFAULT_WALLPAPER_PATH)?;
+        app.load_wallpaper()?;
         app.renderer.selector.init();
 
         Ok(app)
@@ -94,10 +94,10 @@ impl App {
         }
     }
 
-    fn load_wallpaper(&mut self, dir_path: &str) -> Result<()> {
+    fn load_wallpaper(&mut self) -> Result<()> {
         let wallpaper_dir: PathBuf = get_home_dir()
             .expect("Failed to get home directory")
-            .join(dir_path);
+            .join(&self.path);
         let dir_str = wallpaper_dir
             .to_str()
             .ok_or(anyhow!("Invalid wallpaper path"))?;
