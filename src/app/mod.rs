@@ -98,10 +98,11 @@ impl App {
         let wallpaper_dir: PathBuf = get_home_dir()
             .expect("Failed to get home directory")
             .join(&self.path);
-        let dir_str = wallpaper_dir
-            .to_str()
-            .ok_or(anyhow!("Invalid wallpaper path"))?;
-        if let Ok(wallpapers) = self.wallpaper_service.get_wallpapers(dir_str) {
+
+        if let Ok(wallpapers) = self
+            .wallpaper_service
+            .get_wallpapers(wallpaper_dir.as_path())
+        {
             self.renderer.selector.update_wallpapers(wallpapers);
         }
 

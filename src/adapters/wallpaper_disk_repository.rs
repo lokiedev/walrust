@@ -12,9 +12,7 @@ impl WallpaperDiskRepository {
 }
 
 impl WallpaperRepository for WallpaperDiskRepository {
-    fn list_wallpapers(&self, path: &str) -> Result<Vec<Wallpaper>> {
-        let path = Path::new(path);
-
+    fn list_wallpapers(&self, path: &Path) -> Result<Vec<Wallpaper>> {
         if !path.is_dir() {
             return Err(anyhow!("Path is not a valid directory"));
         }
