@@ -7,8 +7,8 @@ use adapters::utils::get_home_dir;
 use app::App;
 use simplelog::{CombinedLogger, Config, LevelFilter, WriteLogger};
 use std::error::Error;
-use std::fs;
 use std::path::PathBuf;
+use std::{env, fs};
 
 const LOG_FOLDER: &str = ".cache/walrust";
 const LOG_NAME: &str = "walrust.log";
@@ -25,12 +25,22 @@ fn main() -> Result<(), Box<dyn Error>> {
     let terminal = ratatui::init();
     log::info!("Raw terminal initialized");
 
-    let wallpaper_dir = &get_home_dir()?.join(DEFAULT_WALLPAPER_PATH);
-    let app = App::new(wallpaper_dir)?.run(terminal);
+    let app = App::new(get_path_argument())?.run(terminal);
 
     ratatui::restore();
 
     app
+}
+
+pub fn get_path_argument() -> PathBuf {
+    let args: Vec<String> = env::args().collect();
+    let path_nth = 1;
+
+    if let Some(path) = args.get(path_nth) {
+        PathBuf::from(path)
+    } else {
+        PathBuf::from("")
+    }
 }
 
 pub fn load_logger(
