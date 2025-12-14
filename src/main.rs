@@ -12,7 +12,7 @@ use std::path::PathBuf;
 
 const LOG_FOLDER: &str = ".cache/walrust";
 const LOG_NAME: &str = "walrust.log";
-const DEFAULT_WALLPAPER_PATH: &str = "/pictures/wallpapers";
+const DEFAULT_WALLPAPER_PATH: &str = "";
 
 fn main() -> Result<(), Box<dyn Error>> {
     load_logger(
