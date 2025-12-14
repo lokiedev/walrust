@@ -33,8 +33,3 @@ and then you can run:
 - Use up/down arrow key to navigate list, or
 - you can also use vim keybindings (j for down and k for up),
 - click Enter to change wallpaper
-
-
-## TODO
-- **Configuration System** (Customize wallpaper path, UI color, etc.) **[WIP]**
-- **Recursive Wallpaper Listing** (List wallpapers from subdirectories within the wallpaper path)
