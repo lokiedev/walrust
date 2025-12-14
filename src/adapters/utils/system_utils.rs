@@ -1,6 +1,7 @@
 use anyhow::{Result, anyhow};
 use std::error::Error;
-use std::path::PathBuf;
+use std::ffi::OsStr;
+use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 
 use serde_json::Value;
@@ -53,4 +54,18 @@ pub fn get_monitor() -> Result<String> {
         let error_message = String::from_utf8_lossy(&output.stderr);
         Err(anyhow!("{}", error_message))
     }
+}
+
+pub fn is_image_file(file_name: &OsStr) -> bool {
+    let extension = match Path::new(file_name).extension() {
+        Some(ext) => ext,
+        None => return false,
+    };
+
+    let ext_lowercase = extension.to_ascii_lowercase();
+
+    matches!(
+        ext_lowercase.to_str(),
+        Some("jpg") | Some("jpeg") | Some("png") | Some("webp")
+    )
 }
