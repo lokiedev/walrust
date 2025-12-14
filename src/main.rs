@@ -10,6 +10,8 @@ use std::error::Error;
 use std::path::PathBuf;
 use std::{env, fs};
 
+use crate::adapters::utils::{change_wallpaper, is_image_file};
+
 const LOG_FOLDER: &str = ".cache/walrust";
 const LOG_NAME: &str = "walrust.log";
 const DEFAULT_WALLPAPER_PATH: &str = "";
@@ -21,6 +23,32 @@ fn main() -> Result<(), Box<dyn Error>> {
         log::LevelFilter::Debug,
     )?;
     log::info!("simplelog initialized");
+
+    log::info!("Getting path argument");
+    let path = get_path_argument();
+    if !path.exists() {
+        log::error!("No such file or directory");
+        eprintln!("Error: No such file or directory");
+        std::process::exit(1);
+    }
+
+    if path.is_file() {
+        if !is_image_file(path.as_os_str()) {
+            log::error!("Specified file is not an image");
+            eprintln!("Error: Specified file is not an image ");
+            std::process::exit(1);
+        }
+
+        change_wallpaper(
+            path.to_str()
+                .or_else(|| Some(""))
+                .expect("Failed to change path to string"),
+        )?;
+
+        log::info!("Wallpaper changed succesfully");
+
+        std::process::exit(0)
+    }
 
     let terminal = ratatui::init();
     log::info!("Raw terminal initialized");
