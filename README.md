@@ -14,6 +14,12 @@ Note: Walrust is currently in active development, the software is not yet ready 
 cargo install --git https://github.com/lokiedev/walrust.git
 ```
 
+and then you can run:
+
+```bash
+walrust ~/path/to/file-or-directory
+```
+
 ### Build from Source
 
 ```bash
@@ -25,7 +31,7 @@ cargo build --release
 and then you can run:
 
 ```bash
-./target/release/walrust ~/path/to/file-or-directories
+./target/release/walrust ~/path/to/file-or-directory
 ```
 
 ## Usage
@@ -33,3 +39,7 @@ and then you can run:
 - Use up/down arrow key to navigate list, or
 - you can also use vim keybindings (j for down and k for up),
 - click Enter to change wallpaper
+
+## Compability
+
+- Image preview is tested on Kitty terminal
