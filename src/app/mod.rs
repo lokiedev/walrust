@@ -4,12 +4,11 @@ pub use action::*;
 
 use crate::{
     adapters::WallpaperDiskRepository,
-    adapters::utils::get_home_dir,
     domain::ports::UIComponent,
     domain::services::WallpaperService,
     ui::{Preview, Renderer, Selector},
 };
-use anyhow::{Result, anyhow};
+use anyhow::Result;
 use crossterm::event::{self, Event, KeyCode, KeyEvent};
 use ratatui::DefaultTerminal;
 use std::{error::Error, path::PathBuf, time::Duration};
@@ -95,14 +94,7 @@ impl App {
     }
 
     fn load_wallpaper(&mut self) -> Result<()> {
-        let wallpaper_dir: PathBuf = get_home_dir()
-            .expect("Failed to get home directory")
-            .join(&self.path);
-
-        if let Ok(wallpapers) = self
-            .wallpaper_service
-            .get_wallpapers(wallpaper_dir.as_path())
-        {
+        if let Ok(wallpapers) = self.wallpaper_service.get_wallpapers(self.path.as_path()) {
             self.renderer.selector.update_wallpapers(wallpapers);
         }
 

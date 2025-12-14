@@ -12,7 +12,7 @@ use std::path::PathBuf;
 
 const LOG_FOLDER: &str = ".cache/walrust";
 const LOG_NAME: &str = "walrust.log";
-const DEFAULT_WALLPAPER_PATH: &str = "pictures/wallpapers";
+const DEFAULT_WALLPAPER_PATH: &str = "/pictures/wallpapers";
 
 fn main() -> Result<(), Box<dyn Error>> {
     load_logger(
@@ -25,7 +25,8 @@ fn main() -> Result<(), Box<dyn Error>> {
     let terminal = ratatui::init();
     log::info!("Raw terminal initialized");
 
-    let app = App::new(String::from(DEFAULT_WALLPAPER_PATH))?.run(terminal);
+    let wallpaper_dir = &get_home_dir()?.join(DEFAULT_WALLPAPER_PATH);
+    let app = App::new(wallpaper_dir)?.run(terminal);
 
     ratatui::restore();
 
