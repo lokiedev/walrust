@@ -20,20 +20,20 @@ const FRAME_DURATION_MS: u64 = 1000 / TARGET_FPS; // ~60fps
 type AppResult<T> = Result<T, Box<dyn Error>>;
 
 pub struct App {
-    path: String,
+    path: PathBuf,
     renderer: Renderer,
     wallpaper_service: WallpaperService<WallpaperDiskRepository>,
     should_quit: bool,
 }
 
 impl App {
-    pub fn new(path: String) -> AppResult<Self> {
+    pub fn new(path: impl Into<PathBuf>) -> AppResult<Self> {
         let wallpaper_service = WallpaperService::new(WallpaperDiskRepository::new());
         let selector = Selector::new();
         let preview = Preview::new()?;
 
         let mut app = App {
-            path,
+            path: path.into(),
             renderer: Renderer::new(preview, selector),
             wallpaper_service,
             should_quit: false,
