@@ -33,21 +33,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     }
 
     if path.is_file() {
-        if !is_image_file(path.as_os_str()) {
-            log::error!("Specified file is not an image");
-            eprintln!("Error: Specified file is not an image ");
-            std::process::exit(1);
-        }
-
-        change_wallpaper(
-            path.to_str()
-                .or_else(|| Some(""))
-                .expect("Failed to change path to string"),
-        )?;
-
-        log::info!("Wallpaper changed succesfully");
-
-        std::process::exit(0)
+        return handle_file_argument(&path);
     }
 
     let terminal = ratatui::init();
@@ -58,6 +44,24 @@ fn main() -> Result<(), Box<dyn Error>> {
     ratatui::restore();
 
     app
+}
+
+fn handle_file_argument(path: &PathBuf) -> Result<(), Box<dyn Error>> {
+    if !is_image_file(path.as_os_str()) {
+        log::error!("Specified file is not an image");
+        eprintln!("Error: Specified file is not an image ");
+        std::process::exit(1);
+    }
+
+    change_wallpaper(
+        path.to_str()
+            .or_else(|| Some(""))
+            .expect("Failed to change path to string"),
+    )?;
+
+    log::info!("Wallpaper changed succesfully");
+
+    std::process::exit(0)
 }
 
 pub fn get_path_argument() -> PathBuf {
