@@ -28,8 +28,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let path = get_path_argument();
     if !path.exists() {
         log::error!("No such file or directory");
-        eprintln!("Error: No such file or directory");
-        std::process::exit(1);
+        return Err("No such file or directory".into());
     }
 
     if path.is_file() {
@@ -48,9 +47,8 @@ fn main() -> Result<(), Box<dyn Error>> {
 
 fn handle_file_argument(path: &PathBuf) -> Result<(), Box<dyn Error>> {
     if !is_image_file(path.as_os_str()) {
-        log::error!("Specified file is not an image");
-        eprintln!("Error: Specified file is not an image ");
-        std::process::exit(1);
+        log::error!("The specified file is not an image");
+        return Err("The specified file is not an image".into());
     }
 
     change_wallpaper(
@@ -61,7 +59,7 @@ fn handle_file_argument(path: &PathBuf) -> Result<(), Box<dyn Error>> {
 
     log::info!("Wallpaper changed succesfully");
 
-    std::process::exit(0)
+    Ok(())
 }
 
 pub fn get_path_argument() -> PathBuf {
