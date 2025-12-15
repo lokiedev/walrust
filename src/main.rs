@@ -63,14 +63,9 @@ fn handle_file_argument(path: &PathBuf) -> Result<(), Box<dyn Error>> {
 }
 
 pub fn get_path_argument() -> PathBuf {
-    let args: Vec<String> = env::args().collect();
-    let path_nth = 1;
-
-    if let Some(path) = args.get(path_nth) {
-        PathBuf::from(path)
-    } else {
-        PathBuf::from("")
-    }
+    env::args()
+        .nth(1)
+        .map_or_else(PathBuf::new, |path| PathBuf::from(path))
 }
 
 pub fn load_logger(
