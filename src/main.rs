@@ -22,7 +22,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         &get_home_dir()?.join(LOG_FOLDER),
         log::LevelFilter::Debug,
     )?;
-    log::info!("simplelog initialized");
+    log::info!("Logger initialized");
 
     let path = get_path_argument();
     log::debug!("Path argument: {:?}", path);
