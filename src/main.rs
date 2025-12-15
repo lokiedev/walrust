@@ -24,23 +24,27 @@ fn main() -> Result<(), Box<dyn Error>> {
     )?;
     log::info!("simplelog initialized");
 
-    log::info!("Getting path argument");
     let path = get_path_argument();
+    log::debug!("Path argument: {:?}", path);
+
     if !path.exists() {
-        log::error!("No such file or directory");
+        log::error!("Path does not exist: {:?}", path);
         return Err("No such file or directory".into());
     }
 
     if path.is_file() {
+        log::info!("Handling file argument: {:?}", path);
         return handle_file_argument(&path);
     }
 
+    log::info!("Path is a directory, initializing TUI");
     let terminal = ratatui::init();
-    log::info!("Raw terminal initialized");
+    log::info!("Terminal initialized");
 
     let app = App::new(get_path_argument())?.run(terminal);
 
     ratatui::restore();
+    log::info!("Terminal restored");
 
     app
 }
