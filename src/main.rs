@@ -41,7 +41,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let terminal = ratatui::init();
     log::info!("Terminal initialized");
 
-    let app = App::new(get_path_argument())?.run(terminal);
+    let app = App::new(path)?.run(terminal);
 
     ratatui::restore();
     log::info!("Terminal restored");
