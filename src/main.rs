@@ -12,16 +12,14 @@ use std::{env, fs};
 
 use crate::adapters::utils::{change_wallpaper, is_image_file};
 
-const LOG_FOLDER: &str = ".cache/walrust";
 const LOG_NAME: &str = "walrust.log";
+const LOG_FOLDER: &str = ".cache/walrust";
+const LOG_LEVEL: LevelFilter = log::LevelFilter::Debug;
+
 const DEFAULT_WALLPAPER_PATH: &str = "";
 
 fn main() -> Result<(), Box<dyn Error>> {
-    load_logger(
-        LOG_NAME,
-        &get_home_dir()?.join(LOG_FOLDER),
-        log::LevelFilter::Debug,
-    )?;
+    setup_logger(LOG_NAME, &get_home_dir()?.join(LOG_FOLDER), LOG_LEVEL)?;
     log::info!("Logger initialized");
 
     let path = get_path_argument();
@@ -72,7 +70,7 @@ pub fn get_path_argument() -> PathBuf {
         .map_or_else(PathBuf::new, |path| PathBuf::from(path))
 }
 
-pub fn load_logger(
+pub fn setup_logger(
     file_name: &str,
     folder_path: &PathBuf,
     level_filter: LevelFilter,
