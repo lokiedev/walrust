@@ -1,5 +1,4 @@
 use anyhow::{Result, anyhow};
-use std::error::Error;
 use std::ffi::OsStr;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
@@ -11,7 +10,7 @@ pub fn get_home_dir() -> Result<PathBuf> {
     std::env::home_dir().ok_or(anyhow!("Could not determine home directory"))
 }
 
-pub fn change_wallpaper(path: &str) -> Result<(), Box<dyn Error>> {
+pub fn change_wallpaper(path: &str) -> Result<()> {
     run_hyprctl(&["hyprpaper", "unload", "all"])?;
     run_hyprctl(&["hyprpaper", "preload", path])?;
 

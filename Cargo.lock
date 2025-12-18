@@ -1607,6 +1607,7 @@ dependencies = [
  "ratatui-image",
  "serde_json",
  "simplelog",
+ "thiserror 2.0.17",
 ]
 
 [[package]]

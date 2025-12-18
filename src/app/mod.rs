@@ -11,12 +11,20 @@ use crate::{
 use anyhow::Result;
 use crossterm::event::{self, Event, KeyCode, KeyEvent};
 use ratatui::DefaultTerminal;
-use std::{error::Error, path::PathBuf, time::Duration};
+use std::{path::PathBuf, time::Duration};
+use thiserror::Error;
 
 const TARGET_FPS: u64 = 60;
 const FRAME_DURATION_MS: u64 = 1000 / TARGET_FPS; // ~60fps
 
-type AppResult<T> = Result<T, Box<dyn Error>>;
+type AppResult<T> = Result<T, WalrustError>;
+
+#[non_exhaustive]
+#[derive(Debug, Error)]
+pub enum WalrustError {
+    #[error("IO Error: {0}")]
+    IOError(#[from] std::io::Error),
+}
 
 pub struct App {
     path: PathBuf,
@@ -26,10 +34,10 @@ pub struct App {
 }
 
 impl App {
-    pub fn new(path: impl Into<PathBuf>) -> AppResult<Self> {
+    pub fn new(path: impl Into<PathBuf>) -> Self {
         let wallpaper_service = WallpaperService::new(WallpaperDiskRepository::new());
         let selector = Selector::new();
-        let preview = Preview::new()?;
+        let preview = Preview::new();
 
         let mut app = App {
             path: path.into(),
@@ -38,10 +46,10 @@ impl App {
             should_quit: false,
         };
 
-        app.load_wallpaper()?;
+        app.load_wallpaper();
         app.renderer.selector.init();
 
-        Ok(app)
+        app
     }
 
     pub fn run(&mut self, mut terminal: DefaultTerminal) -> AppResult<()> {
@@ -68,7 +76,7 @@ impl App {
             log::debug!("Key '{}' pressed", &key.code);
 
             if let Some(action) = self.dispatch_key(key) {
-                self.dispatch_action(&action)?;
+                self.dispatch_action(&action);
             }
         }
 
@@ -76,13 +84,11 @@ impl App {
     }
 
     #[inline]
-    fn dispatch_action(&mut self, action: &Action) -> AppResult<()> {
+    fn dispatch_action(&mut self, action: &Action) {
         match action {
             Action::Quit => self.should_quit = true,
             _ => self.renderer.dispatch_action(action),
         }
-
-        Ok(())
     }
 
     #[inline]
@@ -93,11 +99,9 @@ impl App {
         }
     }
 
-    fn load_wallpaper(&mut self) -> Result<()> {
+    fn load_wallpaper(&mut self) {
         if let Ok(wallpapers) = self.wallpaper_service.get_wallpapers(self.path.as_path()) {
             self.renderer.selector.update_wallpapers(wallpapers);
         }
-
-        Ok(())
     }
 }

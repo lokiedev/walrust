@@ -4,9 +4,9 @@ mod domain;
 mod ui;
 
 use adapters::utils::get_home_dir;
+use anyhow::{Context, Result, anyhow};
 use app::App;
 use simplelog::{CombinedLogger, Config, LevelFilter, WriteLogger};
-use std::error::Error;
 use std::path::PathBuf;
 use std::{env, fs};
 
@@ -18,7 +18,7 @@ const LOG_LEVEL: LevelFilter = log::LevelFilter::Debug;
 
 const DEFAULT_WALLPAPER_PATH: &str = "";
 
-fn main() -> Result<(), Box<dyn Error>> {
+fn main() -> Result<()> {
     setup_logger(LOG_NAME, &get_home_dir()?.join(LOG_FOLDER), LOG_LEVEL)?;
     log::info!("Logger initialized");
 
@@ -27,7 +27,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     if !path.exists() {
         log::error!("Path does not exist: {:?}", path);
-        return Err("No such file or directory".into());
+        return Err(anyhow!("No such file or directory"));
     }
 
     if path.is_file() {
@@ -39,18 +39,18 @@ fn main() -> Result<(), Box<dyn Error>> {
     let terminal = ratatui::init();
     log::info!("Terminal initialized");
 
-    let app = App::new(path)?.run(terminal);
+    let app = App::new(path).run(terminal);
 
     ratatui::restore();
     log::info!("Terminal restored");
 
-    app
+    app.map_err(|e| anyhow!(e))
 }
 
-fn handle_file_argument(path: &PathBuf) -> Result<(), Box<dyn Error>> {
+fn handle_file_argument(path: &PathBuf) -> Result<()> {
     if !is_image_file(path.as_os_str()) {
         log::error!("The specified file is not an image");
-        return Err("The specified file is not an image".into());
+        return Err(anyhow!("The specified file is not an image"));
     }
 
     change_wallpaper(
@@ -74,7 +74,7 @@ pub fn setup_logger(
     file_name: &str,
     folder_path: &PathBuf,
     level_filter: LevelFilter,
-) -> Result<(), Box<dyn Error>> {
+) -> Result<()> {
     if !folder_path.exists() {
         fs::create_dir_all(folder_path)?;
     }

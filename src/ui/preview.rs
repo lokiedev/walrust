@@ -27,18 +27,18 @@ type ImageResult = Result<(String, StatefulProtocol), Box<dyn Error + Send>>;
 type ImageRequest = String;
 
 impl Preview {
-    pub fn new() -> Result<Self, Box<dyn Error>> {
+    pub fn new() -> Self {
         let (path_sender, path_receiver) = mpsc::channel::<ImageRequest>();
         let (image_sender, image_receiver) = mpsc::channel::<ImageResult>();
 
         Self::spawn_image_processor(path_receiver, image_sender);
 
-        Ok(Preview {
+        Preview {
             path_sender,
             image_receiver,
             pending_request: None,
             cache: HashMap::new(),
-        })
+        }
     }
 
     fn spawn_image_processor(
