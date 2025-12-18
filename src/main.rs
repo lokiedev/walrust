@@ -63,17 +63,13 @@ fn handle_file_argument(path: PathBuf) -> Result<()> {
     Ok(())
 }
 
-pub fn get_path_argument() -> PathBuf {
+fn get_path_argument() -> PathBuf {
     env::args()
         .nth(1)
         .map_or_else(PathBuf::new, |path| PathBuf::from(path))
 }
 
-pub fn setup_logger(
-    file_name: &str,
-    folder_path: &PathBuf,
-    level_filter: LevelFilter,
-) -> Result<()> {
+fn setup_logger(file_name: &str, folder_path: &PathBuf, level_filter: LevelFilter) -> Result<()> {
     if !folder_path.exists() {
         fs::create_dir_all(folder_path)?;
     }
