@@ -2,6 +2,7 @@ mod action;
 mod adapters;
 mod app;
 mod domain;
+mod error;
 mod ui;
 mod utils;
 

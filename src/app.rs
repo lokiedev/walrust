@@ -3,25 +3,18 @@ use crate::{
     adapters::WallpaperDiskRepository,
     domain::ports::UIComponent,
     domain::services::WallpaperService,
+    error::WalrustError,
     ui::{Preview, Renderer, Selector},
 };
 use anyhow::Result;
 use crossterm::event::{self, Event, KeyCode, KeyEvent};
 use ratatui::DefaultTerminal;
 use std::{path::PathBuf, time::Duration};
-use thiserror::Error;
 
 const TARGET_FPS: u64 = 60;
 const FRAME_DURATION_MS: u64 = 1000 / TARGET_FPS; // ~60fps
 
 type AppResult<T> = Result<T, WalrustError>;
-
-#[non_exhaustive]
-#[derive(Debug, Error)]
-pub enum WalrustError {
-    #[error("IO Error: {0}")]
-    IOError(#[from] std::io::Error),
-}
 
 pub struct App {
     path: PathBuf,
