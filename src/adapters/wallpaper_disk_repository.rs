@@ -1,5 +1,5 @@
 use crate::domain::ports::WallpaperRepository;
-use crate::{adapters::utils::is_image_file, domain::models::Wallpaper};
+use crate::{domain::models::Wallpaper, utils::is_image_file};
 use anyhow::{Result, anyhow};
 use std::{fs, path::Path};
 

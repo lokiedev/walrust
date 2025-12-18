@@ -2,15 +2,14 @@ mod adapters;
 mod app;
 mod domain;
 mod ui;
+mod utils;
 
-use adapters::utils::get_home_dir;
 use anyhow::{Context, Result, anyhow};
 use app::App;
 use simplelog::{CombinedLogger, Config, LevelFilter, WriteLogger};
 use std::path::PathBuf;
 use std::{env, fs};
-
-use crate::adapters::utils::{change_wallpaper, is_image_file};
+use utils::{change_wallpaper, get_home_dir, is_image_file};
 
 const LOG_NAME: &str = "walrust.log";
 const LOG_FOLDER: &str = ".cache/walrust";
