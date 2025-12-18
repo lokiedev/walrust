@@ -4,7 +4,7 @@ use crate::{
     domain::ports::UIComponent,
     domain::services::WallpaperService,
     error::WalrustError,
-    ui::{Preview, Renderer, Selector},
+    ui::{Preview, Selector},
 };
 use anyhow::Result;
 use crossterm::event::{self, Event, KeyCode, KeyEvent};
