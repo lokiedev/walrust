@@ -1,6 +1,6 @@
-use std::path::PathBuf;
+use std::path::Path;
 
-pub fn is_image_file(file_name: &PathBuf) -> bool {
+pub fn is_image_file(file_name: &Path) -> bool {
     let extension = match file_name.extension() {
         Some(ext) => ext,
         None => return false,

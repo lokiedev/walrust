@@ -1,8 +1,8 @@
 use crate::domain::ports::WallpaperRepository;
 use crate::{domain::models::Wallpaper, utils::is_image_file};
 use anyhow::{Result, anyhow};
-use std::path::PathBuf;
-use std::{fs, path::Path};
+use std::fs;
+use std::path::Path;
 
 pub struct WallpaperDiskRepository;
 
@@ -37,7 +37,7 @@ impl WallpaperRepository for WallpaperDiskRepository {
                 None => continue,
             };
 
-            if is_image_file(&PathBuf::from(&file_name_os)) {
+            if is_image_file(&Path::new(&file_name_os)) {
                 files.push(Wallpaper::new(
                     file_name.to_owned(),
                     entry.path().to_string_lossy().into_owned(),
