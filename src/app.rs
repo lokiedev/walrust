@@ -6,7 +6,6 @@ use crate::{
     error::AppError,
     ui::{Preview, Selector},
 };
-use anyhow::Result;
 use crossterm::event::{self, Event, KeyCode, KeyEvent};
 use ratatui::{
     DefaultTerminal, Frame,
