@@ -18,6 +18,8 @@ type AppResult<T> = Result<T, WalrustError>;
 
 pub struct App {
     path: PathBuf,
+    selector: Selector,
+    preview: Preview,
     renderer: Renderer,
     wallpaper_service: WallpaperService<WallpaperDiskRepository>,
     should_quit: bool,
@@ -31,6 +33,8 @@ impl App {
 
         let mut app = App {
             path: path.into(),
+            selector: Selector::new(),
+            preview: Preview::new(),
             renderer: Renderer::new(preview, selector),
             wallpaper_service,
             should_quit: false,
