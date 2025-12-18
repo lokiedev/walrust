@@ -1,6 +1,6 @@
 use crate::domain::ports::WallpaperRepository;
+use crate::error::AppError;
 use crate::{domain::models::Wallpaper, utils::is_image_file};
-use anyhow::{Result, anyhow};
 use std::fs;
 use std::path::Path;
 
@@ -13,9 +13,12 @@ impl WallpaperDiskRepository {
 }
 
 impl WallpaperRepository for WallpaperDiskRepository {
-    fn list_wallpapers(&self, path: &Path) -> Result<Vec<Wallpaper>> {
+    fn list_wallpapers(&self, path: &Path) -> Result<Vec<Wallpaper>, AppError> {
         if !path.is_dir() {
-            return Err(anyhow!("Path is not a valid directory"));
+            return Err(AppError::InvalidPath(format!(
+                "Path is not a valid directory: {:?}",
+                path
+            )));
         }
 
         let entries = fs::read_dir(path)?;
