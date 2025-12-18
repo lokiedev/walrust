@@ -8,9 +8,21 @@ use crate::{
 };
 use anyhow::Result;
 use crossterm::event::{self, Event, KeyCode, KeyEvent};
-use ratatui::DefaultTerminal;
+use ratatui::{
+    DefaultTerminal, Frame,
+    layout::{Constraint, Layout, Rect},
+    text::Line,
+    widgets::Block,
+};
 use std::{path::PathBuf, time::Duration};
 
+static VERTICAL_LAYOUT: [Constraint; 1] = [Constraint::Fill(1)];
+static HORIZONTAL_LAYOUT: [Constraint; 2] = [
+    Constraint::Percentage(PREVIEW_WIDTH),
+    Constraint::Percentage(SELECTOR_WIDTH),
+];
+const PREVIEW_WIDTH: u16 = 40;
+const SELECTOR_WIDTH: u16 = 60;
 const TARGET_FPS: u64 = 60;
 const FRAME_DURATION_MS: u64 = 1000 / TARGET_FPS; // ~60fps
 
@@ -20,7 +32,6 @@ pub struct App {
     path: PathBuf,
     selector: Selector,
     preview: Preview,
-    renderer: Renderer,
     wallpaper_service: WallpaperService<WallpaperDiskRepository>,
     should_quit: bool,
 }
@@ -28,20 +39,17 @@ pub struct App {
 impl App {
     pub fn new(path: impl Into<PathBuf>) -> Self {
         let wallpaper_service = WallpaperService::new(WallpaperDiskRepository::new());
-        let selector = Selector::new();
-        let preview = Preview::new();
 
         let mut app = App {
             path: path.into(),
             selector: Selector::new(),
             preview: Preview::new(),
-            renderer: Renderer::new(preview, selector),
             wallpaper_service,
             should_quit: false,
         };
 
         app.load_wallpaper();
-        app.renderer.selector.init();
+        app.selector.init();
 
         app
     }
@@ -51,13 +59,40 @@ impl App {
             self.handle_events()?;
 
             // Render frame
-            let _ = terminal.draw(|frame| self.renderer.render(frame));
+            let _ = terminal.draw(|frame| self.render(frame));
 
             // Frame rate control
             std::thread::sleep(Duration::from_millis(FRAME_DURATION_MS));
         }
 
         Ok(())
+    }
+
+    pub fn render(&mut self, frame: &mut Frame) {
+        let content_area = Self::render_border(frame);
+
+        let [preview_area, selector_area] =
+            Layout::horizontal(HORIZONTAL_LAYOUT).areas(content_area);
+
+        // Draw components
+        self.selector.render(frame, selector_area);
+        let selected_wallpaper = self.selector.get_selected_wallpaper();
+        let _ = self.preview.render(selected_wallpaper, frame, preview_area);
+    }
+
+    pub fn render_border(frame: &mut Frame) -> Rect {
+        let [layout_area] = Layout::vertical(VERTICAL_LAYOUT)
+            .margin(1)
+            .areas(frame.area());
+
+        let border = Block::bordered()
+            .border_type(ratatui::widgets::BorderType::Rounded)
+            .title(Line::from("Select Wallpaper").centered());
+        let content_area = border.inner(layout_area);
+
+        frame.render_widget(border, layout_area);
+
+        content_area
     }
 
     #[inline]
@@ -81,7 +116,10 @@ impl App {
     fn dispatch_action(&mut self, action: &Action) {
         match action {
             Action::Quit => self.should_quit = true,
-            _ => self.renderer.dispatch_action(action),
+            Action::NextItem => self.selector.dispatch_action(action),
+            Action::PreviousItem => self.selector.dispatch_action(action),
+            Action::SelectItem(_) => self.selector.dispatch_action(action),
+            _ => {}
         }
     }
 
@@ -89,13 +127,13 @@ impl App {
     fn dispatch_key(&mut self, key: KeyEvent) -> Option<Action> {
         match key.code {
             KeyCode::Char('q') => Some(Action::Quit),
-            _ => self.renderer.selector.dispatch_key(key),
+            _ => self.selector.dispatch_key(key),
         }
     }
 
     fn load_wallpaper(&mut self) {
         if let Ok(wallpapers) = self.wallpaper_service.get_wallpapers(self.path.as_path()) {
-            self.renderer.selector.update_wallpapers(wallpapers);
+            self.selector.update_wallpapers(wallpapers);
         }
     }
 }
