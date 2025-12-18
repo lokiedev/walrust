@@ -119,7 +119,6 @@ impl App {
             Action::NextItem => self.selector.dispatch_action(action),
             Action::PreviousItem => self.selector.dispatch_action(action),
             Action::SelectItem(_) => self.selector.dispatch_action(action),
-            _ => {}
         }
     }
 
