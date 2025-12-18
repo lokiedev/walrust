@@ -30,7 +30,7 @@ fn main() -> Result<()> {
 
     if path.is_file() {
         log::info!("Handling file argument: {:?}", path);
-        return handle_file_argument(&path);
+        return handle_file_argument(path);
     }
 
     log::info!("Path is a directory, initializing TUI");
@@ -45,8 +45,8 @@ fn main() -> Result<()> {
     app.map_err(|e| anyhow!(e))
 }
 
-fn handle_file_argument(path: &PathBuf) -> Result<()> {
-    if !is_image_file(path.as_os_str()) {
+fn handle_file_argument(path: PathBuf) -> Result<()> {
+    if !is_image_file(&path) {
         log::error!("The specified file is not an image");
         return Err(anyhow!("The specified file is not an image"));
     }

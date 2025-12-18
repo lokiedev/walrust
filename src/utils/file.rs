@@ -1,7 +1,7 @@
-use std::{ffi::OsStr, path::Path};
+use std::path::PathBuf;
 
-pub fn is_image_file(file_name: &OsStr) -> bool {
-    let extension = match Path::new(file_name).extension() {
+pub fn is_image_file(file_name: &PathBuf) -> bool {
+    let extension = match file_name.extension() {
         Some(ext) => ext,
         None => return false,
     };
