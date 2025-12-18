@@ -1,10 +1,11 @@
+mod action;
 mod adapters;
 mod app;
 mod domain;
 mod ui;
 mod utils;
 
-use anyhow::{Context, Result, anyhow};
+use anyhow::{Result, anyhow};
 use app::App;
 use simplelog::{CombinedLogger, Config, LevelFilter, WriteLogger};
 use std::path::PathBuf;
@@ -14,8 +15,6 @@ use utils::{change_wallpaper, get_home_dir, is_image_file};
 const LOG_NAME: &str = "walrust.log";
 const LOG_FOLDER: &str = ".cache/walrust";
 const LOG_LEVEL: LevelFilter = log::LevelFilter::Debug;
-
-const DEFAULT_WALLPAPER_PATH: &str = "";
 
 fn main() -> Result<()> {
     setup_logger(LOG_NAME, &get_home_dir()?.join(LOG_FOLDER), LOG_LEVEL)?;

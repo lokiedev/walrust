@@ -1,8 +1,5 @@
-pub mod action;
-
-pub use action::*;
-
 use crate::{
+    action::Action,
     adapters::WallpaperDiskRepository,
     domain::ports::UIComponent,
     domain::services::WallpaperService,

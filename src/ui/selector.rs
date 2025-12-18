@@ -1,5 +1,5 @@
 use crate::{
-    app::Action, domain::models::Wallpaper, domain::ports::UIComponent, utils::change_wallpaper,
+    action::Action, domain::models::Wallpaper, domain::ports::UIComponent, utils::change_wallpaper,
 };
 use crossterm::event::{KeyCode, KeyEvent};
 use ratatui::{

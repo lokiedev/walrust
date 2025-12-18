@@ -1,7 +1,7 @@
 use crossterm::event::KeyEvent;
 use ratatui::{Frame, layout::Rect};
 
-use crate::app::Action;
+use crate::action::Action;
 
 pub trait UIComponent {
     fn render(&mut self, frame: &mut Frame, area: Rect);

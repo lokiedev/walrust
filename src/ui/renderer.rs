@@ -1,4 +1,4 @@
-use crate::app::Action;
+use crate::action::Action;
 use crate::domain::ports::UIComponent;
 use crate::ui::{Preview, Selector};
 use ratatui::{
