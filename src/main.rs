@@ -6,18 +6,20 @@ mod error;
 mod ui;
 mod utils;
 
-use anyhow::{Result, anyhow};
 use app::App;
 use simplelog::{CombinedLogger, Config, LevelFilter, WriteLogger};
 use std::path::PathBuf;
 use std::{env, fs};
 use utils::{change_wallpaper, get_home_dir, is_image_file};
 
+use crate::app::AppResult;
+use crate::error::AppError;
+
 const LOG_NAME: &str = "walrust.log";
 const LOG_FOLDER: &str = ".cache/walrust";
 const LOG_LEVEL: LevelFilter = log::LevelFilter::Debug;
 
-fn main() -> Result<()> {
+fn main() -> AppResult<()> {
     setup_logger(LOG_NAME, &get_home_dir()?.join(LOG_FOLDER), LOG_LEVEL)?;
     log::info!("Logger initialized");
 
@@ -26,7 +28,9 @@ fn main() -> Result<()> {
 
     if !path.exists() {
         log::error!("Path does not exist: {:?}", path);
-        return Err(anyhow!("No such file or directory"));
+        return Err(AppError::InvalidPath(
+            "No such file or directory".to_string(),
+        ));
     }
 
     if path.is_file() {
@@ -43,13 +47,15 @@ fn main() -> Result<()> {
     ratatui::restore();
     log::info!("Terminal restored");
 
-    app.map_err(|e| anyhow!(e))
+    app
 }
 
-fn handle_file_argument(path: PathBuf) -> Result<()> {
+fn handle_file_argument(path: PathBuf) -> AppResult<()> {
     if !is_image_file(&path) {
         log::error!("The specified file is not an image");
-        return Err(anyhow!("The specified file is not an image"));
+        return Err(AppError::InvalidPath(
+            "The specified file is not a supported image".to_string(),
+        ));
     }
 
     change_wallpaper(
@@ -69,7 +75,11 @@ fn get_path_argument() -> PathBuf {
         .map_or_else(PathBuf::new, |path| PathBuf::from(path))
 }
 
-fn setup_logger(file_name: &str, folder_path: &PathBuf, level_filter: LevelFilter) -> Result<()> {
+fn setup_logger(
+    file_name: &str,
+    folder_path: &PathBuf,
+    level_filter: LevelFilter,
+) -> AppResult<()> {
     if !folder_path.exists() {
         fs::create_dir_all(folder_path)?;
     }

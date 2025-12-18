@@ -1,7 +1,9 @@
-use crate::utils::{get_monitor, run_hyprctl};
-use anyhow::Result;
+use crate::{
+    error::AppError,
+    utils::{get_monitor, run_hyprctl},
+};
 
-pub fn change_wallpaper(path: &str) -> Result<()> {
+pub fn change_wallpaper(path: &str) -> Result<(), AppError> {
     run_hyprctl(&["hyprpaper", "unload", "all"])?;
     run_hyprctl(&["hyprpaper", "preload", path])?;
 

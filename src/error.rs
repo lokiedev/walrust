@@ -1,3 +1,4 @@
+use log::SetLoggerError;
 use thiserror::Error;
 
 #[non_exhaustive]
@@ -19,6 +20,10 @@ pub enum AppError {
     Utf8(#[from] std::string::FromUtf8Error),
     #[error("Home directory not found")]
     HomeDirNotFound,
+    #[error("Monitor detection failed: {0}")]
+    MonitorDetection(String),
     #[error("Invalid path: {0}")]
     InvalidPath(String),
+    #[error("Failed to setup logger: {0}")]
+    SetupLogger(#[from] SetLoggerError),
 }

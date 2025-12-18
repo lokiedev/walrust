@@ -1,45 +1,54 @@
-use anyhow::{Result, anyhow};
 use std::path::PathBuf;
 use std::process::{Command, Stdio};
 
 use serde_json::Value;
 
+use crate::error::AppError;
+
 #[inline]
-pub fn get_home_dir() -> Result<PathBuf> {
-    std::env::home_dir().ok_or(anyhow!("Could not determine home directory"))
+pub fn get_home_dir() -> Result<PathBuf, AppError> {
+    std::env::home_dir().ok_or(AppError::HomeDirNotFound)
 }
 
 #[inline]
-pub fn run_hyprctl(args: &[&str]) -> Result<()> {
+pub fn run_hyprctl(args: &[&str]) -> Result<(), AppError> {
     Command::new("hyprctl")
         .args(args)
         .stderr(Stdio::piped())
-        .output()?;
+        .spawn()?
+        .wait()?;
 
     Ok(())
 }
 
-pub fn get_monitor() -> Result<String> {
+pub fn get_monitor() -> Result<String, AppError> {
     let output = Command::new("hyprctl").arg("monitors").arg("-j").output()?;
 
-    if output.status.success() {
-        let json_str = String::from_utf8_lossy(&output.stdout);
-        let monitors: Value = serde_json::from_str(&json_str)?;
+    if !output.status.success() {
+        let error_message = String::from_utf8(output.stderr)
+            .unwrap_or_else(|_| "Failed to convert hyprctl error message to String".to_string());
 
-        if let Some(monitors_array) = monitors.as_array() {
-            Ok(monitors_array
-                .first()
-                .ok_or(anyhow!("Cannot access first index of monitors_array"))?["name"]
-                .as_str()
-                .ok_or(anyhow!(
-                    "Cannot convert first index of monitors_array.name to str"
-                ))?
-                .to_owned())
-        } else {
-            Err(anyhow!("Failed to convert serde_json: Value to array"))
-        }
+        return Err(AppError::MonitorDetection(format!(
+            "hyprctl returned error: {}",
+            error_message
+        )));
+    }
+
+    let json_str = String::from_utf8_lossy(&output.stdout);
+    let monitors: Value = serde_json::from_str(&json_str)?;
+
+    if let Some(monitors_array) = monitors.as_array() {
+        Ok(monitors_array
+            .first()
+            .ok_or_else(|| AppError::MonitorDetection("No monitor found".to_string()))?["name"]
+            .as_str()
+            .ok_or_else(|| {
+                AppError::MonitorDetection("Failed to convert monitor name".to_string())
+            })?
+            .to_owned())
     } else {
-        let error_message = String::from_utf8_lossy(&output.stderr);
-        Err(anyhow!("{}", error_message))
+        Err(AppError::MonitorDetection(
+            "Monitor data is not an array".to_string(),
+        ))
     }
 }
