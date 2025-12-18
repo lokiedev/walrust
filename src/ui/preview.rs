@@ -14,7 +14,7 @@ use ratatui::{
 };
 use ratatui_image::{StatefulImage, picker::Picker, protocol::StatefulProtocol};
 
-use crate::domain::models::Wallpaper;
+use crate::{app::AppResult, domain::models::Wallpaper, error::AppError};
 
 pub struct Preview {
     path_sender: Sender<ImageRequest>,
@@ -23,7 +23,7 @@ pub struct Preview {
     cache: HashMap<String, StatefulProtocol>,
 }
 
-type ImageResult = Result<(String, StatefulProtocol), Box<dyn Error + Send>>;
+type ImageResult = Result<(String, StatefulProtocol), AppError>;
 type ImageRequest = String;
 
 impl Preview {
@@ -68,10 +68,7 @@ impl Preview {
     fn process_image_in_thread(picker: &Picker, image_path: String) -> ImageResult {
         log::debug!("Decoding image");
 
-        let dyn_image = ImageReader::open(&image_path)
-            .unwrap()
-            .decode()
-            .map_err(|error| Box::new(error) as Box<dyn Error + Send>)?;
+        let dyn_image = ImageReader::open(&image_path).unwrap().decode()?;
 
         log::debug!("Creating resize protocol");
 
@@ -132,7 +129,7 @@ impl Preview {
         wallpaper: &Wallpaper,
         frame: &mut Frame,
         layout: Rect,
-    ) -> Result<(), Box<dyn Error>> {
+    ) -> AppResult<()> {
         let image_path = &wallpaper.path;
 
         if let Some(cached) = self.cache.get_mut(image_path) {

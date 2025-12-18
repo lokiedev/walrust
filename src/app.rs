@@ -3,7 +3,7 @@ use crate::{
     adapters::WallpaperDiskRepository,
     domain::ports::UIComponent,
     domain::services::WallpaperService,
-    error::WalrustError,
+    error::AppError,
     ui::{Preview, Selector},
 };
 use anyhow::Result;
@@ -26,7 +26,7 @@ const SELECTOR_WIDTH: u16 = 60;
 const TARGET_FPS: u64 = 60;
 const FRAME_DURATION_MS: u64 = 1000 / TARGET_FPS; // ~60fps
 
-type AppResult<T> = Result<T, WalrustError>;
+pub type AppResult<T> = Result<T, AppError>;
 
 pub struct App {
     path: PathBuf,
