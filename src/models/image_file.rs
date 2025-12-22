@@ -1,19 +1,15 @@
 use std::path::PathBuf;
 
 pub struct ImageFile {
-    name: PathBuf,
-    folder: PathBuf,
+    name: String,
+    path: PathBuf,
 }
 
 impl ImageFile {
-    pub fn new(name: impl Into<PathBuf>, folder: impl Into<PathBuf>) -> Self {
+    pub fn new(name: impl Into<String>, path: impl Into<PathBuf>) -> Self {
         ImageFile {
             name: name.into(),
-            folder: folder.into(),
+            path: path.into(),
         }
-    }
-
-    pub fn path(&self) -> PathBuf {
-        self.folder.join(&self.name)
     }
 }
