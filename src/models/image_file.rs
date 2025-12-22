@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-struct ImageFile {
+pub struct ImageFile {
     name: PathBuf,
     folder: PathBuf,
 }
