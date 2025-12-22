@@ -2,7 +2,7 @@ use std::{fs, io, path::Path};
 
 use crate::{models::image_file::ImageFile, ports::image_repository::ImageRepository};
 
-struct ImageDiskRepository {
+pub struct ImageDiskRepository {
     image_extensions: Vec<String>,
 }
 
