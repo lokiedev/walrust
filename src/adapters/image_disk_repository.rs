@@ -6,6 +6,19 @@ pub struct ImageDiskRepository {
     image_extensions: Vec<String>,
 }
 
+impl Default for ImageDiskRepository {
+    fn default() -> Self {
+        Self {
+            image_extensions: vec![
+                "jpg".to_string(),
+                "jpeg".to_string(),
+                "png".to_string(),
+                "webp".to_string(),
+            ],
+        }
+    }
+}
+
 impl ImageDiskRepository {
     fn is_supported_image(&self, path: &Path) -> bool {
         path.extension()
