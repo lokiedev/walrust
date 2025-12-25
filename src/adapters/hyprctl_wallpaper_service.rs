@@ -52,7 +52,7 @@ impl HyprctlWallpaperService {
 }
 
 impl WallpaperServicePort for HyprctlWallpaperService {
-    fn set_wallpaper(monitor_name: &str, path: &Path) -> Result<()> {
+    fn set_wallpaper(&self, monitor_name: &str, path: &Path) -> Result<()> {
         let command = "hyprpaper";
 
         let unload_output = Self::hyprctl(&[command, "unload", "all"])
