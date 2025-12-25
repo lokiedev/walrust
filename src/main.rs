@@ -4,6 +4,7 @@ use anyhow::ensure;
 
 use crate::{
     adapters::HyprctlWallpaperService, ports::wallpaper_service_port::WallpaperServicePort,
+    tui::app::App,
 };
 
 mod adapters;
@@ -26,7 +27,7 @@ fn main() -> anyhow::Result<()> {
                 let wallpaper_service: &dyn WallpaperServicePort = &HyprctlWallpaperService::new();
                 let monitors = HyprctlWallpaperService::get_monitor_names()?;
 
-                ensure!(monitors.len() > 0, "No monitor detected");
+                ensure!(monitors.is_empty(), "No monitor detected");
 
                 wallpaper_service.set_wallpaper(monitors[0].as_str(), pathbuf.as_path())?;
             }
