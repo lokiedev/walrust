@@ -4,5 +4,5 @@ use anyhow::Result;
 use image::DynamicImage;
 
 pub trait ImageServicePort {
-    fn decode(path: &Path) -> Result<DynamicImage>;
+    fn decode(&self, path: &Path) -> Result<DynamicImage>;
 }
