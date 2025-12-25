@@ -37,9 +37,9 @@ impl HyprctlWallpaperService {
                 .filter_map(|monitor| monitor[name_properties].as_str())
                 .map(|s| s.to_owned())
                 .collect();
-            return Ok(monitor_names);
+            Ok(monitor_names)
         } else {
-            return Err(anyhow!("hyprctl command returned nothing or not an array"));
+            Err(anyhow!("hyprctl command returned nothing or not an array"))
         }
     }
 
