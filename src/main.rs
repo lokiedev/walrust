@@ -3,8 +3,7 @@ use std::{env, path::PathBuf};
 use anyhow::ensure;
 
 use crate::{
-    adapters::hyprctl_wallpaper_service::HyprctlWallpaperService,
-    ports::wallpaper_service_port::WallpaperServicePort,
+    adapters::HyprctlWallpaperService, ports::wallpaper_service_port::WallpaperServicePort,
 };
 
 mod adapters;
