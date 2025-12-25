@@ -10,6 +10,7 @@ use crate::{
 mod adapters;
 mod models;
 mod ports;
+mod tui;
 
 fn main() -> anyhow::Result<()> {
     let mut args = env::args();
