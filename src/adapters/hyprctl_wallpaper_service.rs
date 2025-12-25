@@ -33,7 +33,7 @@ impl HyprctlWallpaperService {
         if let Some(monitors_array) = monitors.as_array() {
             let name_properties = "name";
             let monitor_names: Vec<String> = monitors_array
-                .into_iter()
+                .iter()
                 .filter_map(|monitor| monitor[name_properties].as_str())
                 .map(|s| s.to_owned())
                 .collect();
