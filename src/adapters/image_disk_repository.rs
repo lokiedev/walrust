@@ -1,5 +1,5 @@
 use anyhow::Result;
-use std::{fs, io, path::Path};
+use std::{fs, path::Path};
 
 use crate::{models::image_file::ImageFile, ports::image_repository::ImageRepository};
 
