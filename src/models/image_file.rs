@@ -1,13 +1,12 @@
 use std::{
     fmt::{self, Display},
     path::PathBuf,
-    ptr::write,
 };
 
 #[derive(Debug)]
 pub struct ImageFile {
-    name: String,
-    path: PathBuf,
+    pub name: String,
+    pub path: PathBuf,
 }
 
 impl ImageFile {
