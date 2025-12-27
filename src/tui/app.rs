@@ -11,11 +11,7 @@ use ratatui::{
 
 use crate::{
     adapters::{HyprctlWallpaperService, ImageDiskRepository},
-    ports::WallpaperServicePort,
-    tui::{
-        components::WallpaperListComponent,
-        constant::{Action, ActionState},
-    },
+    tui::{components::WallpaperListComponent, constant::Action},
 };
 
 pub struct App<'a> {
