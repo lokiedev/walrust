@@ -3,7 +3,7 @@ use std::{
     path::PathBuf,
 };
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct ImageFile {
     pub name: String,
     pub path: PathBuf,
