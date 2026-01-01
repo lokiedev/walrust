@@ -3,8 +3,9 @@ use std::{env, path::PathBuf};
 use anyhow::ensure;
 
 use crate::{
-    adapters::HyprctlWallpaperService, ports::wallpaper_service_port::WallpaperServicePort,
-    tui::app::App,
+    adapters::HyprctlWallpaperService,
+    ports::wallpaper_service_port::WallpaperServicePort,
+    tui::{app::App, messages::Messages},
 };
 
 mod adapters;
@@ -14,26 +15,38 @@ mod tui;
 
 fn main() -> anyhow::Result<()> {
     let mut args = env::args();
+    let path = args
+        .nth(1)
+        .map(PathBuf::from)
+        .ok_or_else(|| anyhow::anyhow!("No arguments are provided"))?;
 
-    match args.nth(1) {
-        Some(path) => {
-            let pathbuf = PathBuf::from(&path);
-            ensure!(pathbuf.exists(), "No such file or directory");
+    ensure!(path.exists(), "No such file or directory");
 
-            let monitors = HyprctlWallpaperService::get_monitor_names()?;
-            ensure!(!monitors.is_empty(), "No monitor detected");
+    let monitors = HyprctlWallpaperService::get_monitor_names()?;
+    ensure!(!monitors.is_empty(), "No monitor detected");
 
-            if pathbuf.is_dir() {
-                let monitor = monitors[0].clone();
-                App::new(&pathbuf, monitor).run()?;
-            } else {
-                let wallpaper_service: &dyn WallpaperServicePort = &HyprctlWallpaperService::new();
+    if path.is_dir() {
+        let terminal = ratatui::init();
+        let mut messages = Messages::new(250);
 
-                wallpaper_service.set_wallpaper(monitors[0].as_str(), pathbuf.as_path())?;
-            }
+        messages.start_event_listener();
 
-            Ok(())
-        }
-        None => Err(anyhow::anyhow!("No arguments are provided")),
+        let app = App::new(
+            messages,
+            path,
+            monitors[0].clone(),
+            HyprctlWallpaperService::new(),
+        )?
+        .run(terminal);
+
+        ratatui::restore();
+
+        app?;
+    } else {
+        let wallpaper_service: &dyn WallpaperServicePort = &HyprctlWallpaperService::new();
+
+        wallpaper_service.set_wallpaper(&monitors[0], path.as_path())?;
     }
+
+    Ok(())
 }

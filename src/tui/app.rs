@@ -1,57 +1,81 @@
-use std::{path::Path, time::Duration};
+use std::path::PathBuf;
 
-use anyhow::Result;
+use anyhow::{Context, Ok, Result};
 use ratatui::{
     DefaultTerminal, Frame,
-    crossterm::event::{self, Event, KeyCode},
+    crossterm::event::{self, KeyCode, KeyEvent},
     layout::{Constraint, Layout},
     text::Line,
     widgets::Block,
 };
 
 use crate::{
-    adapters::{HyprctlWallpaperService, ImageDiskRepository},
-    tui::{components::WallpaperListComponent, constant::Action},
+    adapters::{ImageDiskRepository, ImageService},
+    ports::WallpaperServicePort,
+    tui::{
+        PreviewComponent, WallpaperListComponent,
+        messages::{Message, MessageState, Messages},
+    },
 };
 
-pub struct App<'a> {
-    wallpaper_list_component:
-        WallpaperListComponent<'a, HyprctlWallpaperService, ImageDiskRepository>,
+pub struct App<S> {
+    // Dependencies
+    messages: Messages,
+    wallpaper_service: S,
+
+    // Components
+    wallpaper_list_component: WallpaperListComponent,
+    preview_component: PreviewComponent<ImageService>,
+
+    // Data or states
     monitor: String,
     quit: bool,
 }
 
-impl<'a> App<'a> {
-    pub fn new(path: &Path, monitor: String) -> Self {
-        let wallpaper_list_component = WallpaperListComponent::new(
-            monitor.clone(),
-            path,
-            ImageDiskRepository::default(),
-            HyprctlWallpaperService::new(),
-        );
+impl<S> App<S>
+where
+    S: WallpaperServicePort,
+{
+    pub fn new(
+        messages: Messages,
+        dir_path: PathBuf,
+        monitor: String,
+        wallpaper_service: S,
+    ) -> Result<Self> {
+        let wallpaper_list_component =
+            WallpaperListComponent::new(ImageDiskRepository::default(), dir_path)
+                .with_context(|| "Failed to create wallpaper list component")?;
+        let preview_component = PreviewComponent::new(&messages, ImageService {});
 
-        App {
+        Ok(App {
             quit: false,
-            wallpaper_list_component,
+            messages,
             monitor,
-        }
+            wallpaper_list_component,
+            preview_component,
+            wallpaper_service,
+        })
     }
 
     fn init(&mut self) -> Result<()> {
-        self.execute(Action::Start)
+        if let Some(selected_image_path) = self.wallpaper_list_component.get_selected() {
+            self.preview_component
+                .init(selected_image_path.to_path_buf())
+                .with_context(|| "Failed to initialize preview component")?;
+        }
+
+        Ok(())
     }
 
-    pub fn run(&mut self) -> Result<()> {
+    pub fn run(&mut self, mut terminal: DefaultTerminal) -> Result<()> {
         self.init()?;
 
-        let mut terminal: DefaultTerminal = ratatui::init();
-
         while !self.quit {
-            if let Some(message) = self.handle_event()? {
-                self.execute(message)?;
-            }
-
             terminal.draw(|frame| self.render(frame))?;
+
+            if let std::result::Result::Ok(message) = self.messages.rx.recv() {
+                self.message(message)?;
+            }
         }
 
         ratatui::restore();
@@ -76,37 +100,54 @@ impl<'a> App<'a> {
         frame.render_widget(Line::from("Select wallpaper"), frame.area());
         frame.render_widget(&border_widget, bordered_area);
         self.wallpaper_list_component.render(frame, list_area);
-        // TODO: Preview Component
+
+        self.preview_component.render(frame, preview_area);
     }
 
-    fn execute(&mut self, action: Action) -> Result<()> {
-        match action {
-            Action::Quit => {
+    fn message(&mut self, message: Message) -> Result<MessageState> {
+        match message {
+            Message::ImagePreviewFinished(image_path, protocol) => {
+                self.preview_component
+                    .insert_protocol(image_path, *protocol)?;
+                Ok(MessageState::Consumed)
+            }
+            Message::Key(key) => self.event(key),
+        }
+    }
+
+    fn event(&mut self, key: KeyEvent) -> Result<MessageState> {
+        match key.code {
+            KeyCode::Esc | KeyCode::Char('q') => {
                 self.quit = true;
+                Ok(MessageState::Consumed)
             }
-            _ => {
-                self.wallpaper_list_component.execute(action)?;
+            KeyCode::Enter => {
+                self.change_wallpaper()?;
+                Ok(MessageState::Consumed)
             }
+            _ => self.components_event(key),
+        }?;
+
+        Ok(MessageState::NotConsumed)
+    }
+
+    fn components_event(&mut self, key: event::KeyEvent) -> Result<MessageState> {
+        if self.wallpaper_list_component.event(key)?.is_consumed()
+            && let Some(image_path) = self.wallpaper_list_component.get_selected()
+        {
+            self.preview_component
+                .update_image_path(image_path.to_path_buf())?;
+        }
+
+        Ok(MessageState::Consumed)
+    }
+
+    fn change_wallpaper(&self) -> Result<()> {
+        if let Some(image_path) = self.wallpaper_list_component.get_selected() {
+            self.wallpaper_service
+                .set_wallpaper(&self.monitor, image_path)?
         }
 
         Ok(())
-    }
-
-    fn handle_event(&self) -> Result<Option<Action>> {
-        if event::poll(Duration::from_millis(250))?
-            && let Event::Key(key) = event::read()?
-            && key.kind == event::KeyEventKind::Press
-        {
-            return Ok(self.handle_key(key));
-        }
-
-        Ok(None)
-    }
-
-    fn handle_key(&self, key: event::KeyEvent) -> Option<Action> {
-        match key.code {
-            KeyCode::Esc | KeyCode::Char('q') => Some(Action::Quit),
-            _ => self.wallpaper_list_component.handle_key(key),
-        }
     }
 }
