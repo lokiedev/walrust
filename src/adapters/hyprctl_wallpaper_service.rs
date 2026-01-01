@@ -60,7 +60,8 @@ impl WallpaperServicePort for HyprctlWallpaperService {
 
         ensure!(
             unload_output.status.success(),
-            "hyprctl command returned error: {}",
+            "hyprctl {} command returned error: {}",
+            command,
             String::from_utf8_lossy(&unload_output.stderr)
         );
 
