@@ -21,15 +21,15 @@ impl HyprctlWallpaperService {
 
         let output = Self::hyprctl(&[arg, flag])?;
 
-        if !output.status.success() {
-            let error_message = if output.stderr.is_empty() {
+        ensure!(
+            output.status.success(),
+            "hyprctl command returned error: {}",
+            if output.stderr.is_empty() {
                 String::from_utf8_lossy(&output.stdout)
             } else {
                 String::from_utf8_lossy(&output.stderr)
-            };
-
-            return Err(anyhow!("hyprctl command returned error: {}", error_message));
-        }
+            }
+        );
 
         let stdout_utf8 = String::from_utf8_lossy(&output.stdout);
         let monitors: Value = serde_json::from_str(&stdout_utf8)
