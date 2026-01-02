@@ -43,4 +43,4 @@ Kitty (>= v0.28.0) | `Kitty`  | ✅      |
 Foot               | `Sixel`  | ✅      |
 
 Walrust uses [`ratatui-image`](https://github.com/benjajaja/ratatui-image) to display image previews, so its terminal compatibility is very likely the same.
-See https://github.com/benjajaja/ratatui-image/blob/master/README.md#compatibility-matrix
+See https://github.com/benjajaja/ratatui-image/tree/master?tab=readme-ov-file#compatibility-matrix
