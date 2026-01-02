@@ -35,6 +35,12 @@ and then you can run:
 - you can also use vim keybindings (j for down and k for up),
 - click Enter to change wallpaper
 
-## Compability
+## Image Preview
 
-- Image preview is tested and work properly on Kitty terminal
+Terminal           | Protocol | Tested |
+-------------------|----------|--------|
+Kitty (>= v0.28.0) | `Kitty`  | ✅      |
+Foot               | `Sixel`  | ✅      |
+
+Walrust uses [`ratatui-image`](https://github.com/benjajaja/ratatui-image) to display image previews, so its terminal compatibility is very likely the same.
+See https://github.com/benjajaja/ratatui-image/blob/master/README.md#compatibility-matrix
