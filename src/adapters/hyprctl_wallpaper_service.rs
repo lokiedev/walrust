@@ -55,12 +55,12 @@ impl WallpaperServicePort for HyprctlWallpaperService {
     fn set_wallpaper(&self, monitor_name: &str, path: &Path) -> Result<()> {
         let command = "hyprpaper";
 
-        let unload_output = Self::hyprctl(&[command, "unload", "all"])
+        let _ = Self::hyprctl(&[command, "unload", "all"])
             .with_context(|| format!("Failed to unload all {} images", command))?;
 
         let path_string = path.display().to_string();
 
-        let preload_output = Self::hyprctl(&[command, "preload", &path_string])
+        let _ = Self::hyprctl(&[command, "preload", &path_string])
             .with_context(|| format!("Failed to preload {} to {}", &path_string, command))?;
 
         let change_wallpaper_output = Self::hyprctl(&[
