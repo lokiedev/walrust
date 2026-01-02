@@ -1,6 +1,6 @@
 use std::{path::PathBuf, sync::mpsc, thread, time::Duration};
 
-use ratatui::crossterm::event::{self, KeyEvent};
+use ratatui::crossterm::event::{self, Event, KeyEvent};
 use ratatui_image::protocol::StatefulProtocol;
 
 /*
@@ -13,6 +13,7 @@ use ratatui_image::protocol::StatefulProtocol;
 
 pub enum Message {
     Key(KeyEvent),
+    Resize,
 
     // This will be sent when a PreviewComponent worker finished generating an image protocol.
     // The StatefulProtocol is wrapped in a Box based on clippy suggestion
@@ -55,10 +56,12 @@ impl Messages {
         thread::spawn(move || {
             loop {
                 // I'm planning to add a support for control modifier if needed.
-                if event::poll(tick_rate).unwrap()
-                    && let event::Event::Key(event) = event::read().unwrap()
-                {
-                    tx.send(Message::Key(event)).unwrap();
+                if event::poll(tick_rate).unwrap() {
+                    match event::read().unwrap() {
+                        Event::Key(event) => tx.send(Message::Key(event)).unwrap(),
+                        Event::Resize(_, _) => tx.send(Message::Resize).unwrap(),
+                        _ => {}
+                    }
                 }
             }
         });
