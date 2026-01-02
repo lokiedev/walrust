@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## Fixed
+- TUI doesn't rerender when the terminal window is resized ([#3])
+
 ## [1.0.2] - 2026-01-02
 
 ## Added
@@ -30,3 +33,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [#1]: https://github.com/lokiedev/walrust/pull/1
 [#2]: https://github.com/lokiedev/walrust/pull/2
+[#3]: https://github.com/lokiedev/walrust/pull/3
