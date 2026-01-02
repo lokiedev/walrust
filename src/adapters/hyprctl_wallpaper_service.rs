@@ -23,7 +23,7 @@ impl HyprctlWallpaperService {
 
         ensure!(
             output.status.success(),
-            "hyprctl command returned error: {}",
+            "hyprctl command failed and returned: {}",
             if output.stderr.is_empty() {
                 String::from_utf8_lossy(&output.stdout)
             } else {
@@ -85,7 +85,7 @@ impl WallpaperServicePort for HyprctlWallpaperService {
 
         ensure!(
             change_wallpaper_output.status.success(),
-            "hyprctl command returned error: {}",
+            "hyprctl command failed and returned: {}",
             if change_wallpaper_output.stderr.is_empty() {
                 String::from_utf8_lossy(&change_wallpaper_output.stdout)
             } else {
