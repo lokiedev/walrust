@@ -21,10 +21,15 @@ impl HyprctlWallpaperService {
 
         let output = Self::hyprctl(&[arg, flag])?;
 
-        if !output.status.success() {
-            let error_message = String::from_utf8(output.stderr).unwrap();
-            return Err(anyhow!("hyprctl command returned error: {}", error_message));
-        }
+        ensure!(
+            output.status.success(),
+            "hyprctl command failed and returned: {}",
+            if output.stderr.is_empty() {
+                String::from_utf8_lossy(&output.stdout)
+            } else {
+                String::from_utf8_lossy(&output.stderr)
+            }
+        );
 
         let stdout_utf8 = String::from_utf8_lossy(&output.stdout);
         let monitors: Value = serde_json::from_str(&stdout_utf8)
@@ -43,6 +48,14 @@ impl HyprctlWallpaperService {
         }
     }
 
+    // Hyprctl sends its error output to stdout instead of stderr.
+    // So to get the error message, you can use the stdout only,
+    // or you can handle both for example:
+    // if output.stderr.is_empty() {
+    //    do something with the stdout
+    // } else {
+    //    do something with the stderr
+    // }
     fn hyprctl(args: &[&str]) -> Result<Output> {
         Command::new("hyprctl")
             .args(args)
@@ -72,8 +85,12 @@ impl WallpaperServicePort for HyprctlWallpaperService {
 
         ensure!(
             change_wallpaper_output.status.success(),
-            "hyprctl command returned error: {}",
-            String::from_utf8_lossy(&change_wallpaper_output.stderr)
+            "hyprctl command failed and returned: {}",
+            if change_wallpaper_output.stderr.is_empty() {
+                String::from_utf8_lossy(&change_wallpaper_output.stdout)
+            } else {
+                String::from_utf8_lossy(&change_wallpaper_output.stderr)
+            }
         );
 
         Ok(())
