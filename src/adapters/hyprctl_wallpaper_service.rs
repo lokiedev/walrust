@@ -58,23 +58,10 @@ impl WallpaperServicePort for HyprctlWallpaperService {
         let unload_output = Self::hyprctl(&[command, "unload", "all"])
             .with_context(|| format!("Failed to unload all {} images", command))?;
 
-        ensure!(
-            unload_output.status.success(),
-            "hyprctl {} command returned error: {}",
-            command,
-            String::from_utf8_lossy(&unload_output.stderr)
-        );
-
         let path_string = path.display().to_string();
 
         let preload_output = Self::hyprctl(&[command, "preload", &path_string])
             .with_context(|| format!("Failed to preload {} to {}", &path_string, command))?;
-
-        ensure!(
-            preload_output.status.success(),
-            "hyprctl command returned error: {}",
-            String::from_utf8_lossy(&preload_output.stderr)
-        );
 
         let change_wallpaper_output = Self::hyprctl(&[
             command,
