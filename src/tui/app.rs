@@ -112,6 +112,7 @@ where
                 Ok(MessageState::Consumed)
             }
             Message::Key(key) => self.event(key),
+            Message::Resize => Ok(MessageState::Consumed),
         }
     }
 
