@@ -1,11 +1,12 @@
 use std::{
-    collections::HashMap,
+    num::NonZeroUsize,
     path::PathBuf,
     sync::mpsc::{self, Receiver, Sender},
     thread,
 };
 
 use anyhow::Result;
+use lru::LruCache;
 use ratatui::{Frame, layout::Rect, widgets::Block};
 use ratatui_image::{StatefulImage, picker::Picker, protocol::StatefulProtocol};
 
@@ -26,7 +27,7 @@ pub struct PreviewComponent<A> {
 
     // Data or states
     image_path: PathBuf,
-    protocols: HashMap<PathBuf, StatefulProtocol>, // Protocol cache
+    protocols: LruCache<PathBuf, StatefulProtocol>, // Protocol cache
 
     // Concurrency
     image_path_tx: Sender<PathBuf>,
@@ -50,7 +51,7 @@ where
         Ok(PreviewComponent {
             image_service,
             image_path: PathBuf::new(),
-            protocols: HashMap::new(),
+            protocols: LruCache::new(NonZeroUsize::new(8).unwrap()),
             image_path_tx: image_path_channel.0,
             pending_image_preview: None,
         })
@@ -78,7 +79,7 @@ where
         image: PathBuf,
         value: StatefulProtocol,
     ) -> anyhow::Result<()> {
-        self.protocols.insert(image, value);
+        self.protocols.put(image, value);
 
         Ok(())
     }
@@ -88,7 +89,7 @@ where
             return Ok(());
         }
 
-        if !self.protocols.contains_key(&new_image_path)
+        if !self.protocols.contains(&new_image_path)
             && self.pending_image_preview.as_ref() != Some(&new_image_path)
         {
             self.image_path_tx.send(new_image_path.clone())?;
