@@ -1,4 +1,5 @@
 use std::{
+    collections::HashSet,
     num::NonZeroUsize,
     path::PathBuf,
     sync::mpsc::{self, Receiver, Sender},
@@ -31,7 +32,7 @@ pub struct PreviewComponent<A> {
 
     // Concurrency
     image_path_tx: Sender<PathBuf>,
-    pending_image_preview: Option<PathBuf>,
+    pending_image_previews: HashSet<PathBuf>,
 }
 
 impl<A> PreviewComponent<A>
@@ -53,7 +54,7 @@ where
             image_path: PathBuf::new(),
             protocols: LruCache::new(NonZeroUsize::new(8).unwrap()),
             image_path_tx: image_path_channel.0,
-            pending_image_preview: None,
+            pending_image_previews: HashSet::new(),
         })
     }
 
@@ -79,6 +80,10 @@ where
         image: PathBuf,
         value: StatefulProtocol,
     ) -> anyhow::Result<()> {
+        if self.pending_image_previews.contains(&image) {
+            self.pending_image_previews.remove(&image);
+        }
+
         self.protocols.put(image, value);
 
         Ok(())
@@ -90,9 +95,10 @@ where
         }
 
         if !self.protocols.contains(&new_image_path)
-            && self.pending_image_preview.as_ref() != Some(&new_image_path)
+            && !self.pending_image_previews.contains(&new_image_path)
         {
             self.image_path_tx.send(new_image_path.clone())?;
+            self.pending_image_previews.insert(new_image_path.clone());
         }
 
         self.image_path = new_image_path;
