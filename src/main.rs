@@ -1,6 +1,10 @@
-use std::{env, path::PathBuf};
+use std::{
+    env,
+    io::{self, Write},
+    path::PathBuf,
+};
 
-use anyhow::ensure;
+use anyhow::{bail, ensure};
 use ratatui_image::picker::Picker;
 
 use crate::{
@@ -47,8 +51,30 @@ fn main() -> anyhow::Result<()> {
         app?;
     } else {
         let wallpaper_service: &dyn WallpaperServicePort = &HyprctlWallpaperService::new();
+        let mut selected_monitor = String::new();
 
-        wallpaper_service.set_wallpaper(&monitors[0], path.as_path())?;
+        println!("Choose monitor to change wallpaper:");
+        for (i, monitor) in monitors.iter().enumerate() {
+            println!("[{}] {monitor}", i + 1);
+        }
+        print!("==> ");
+
+        io::stdout().flush()?;
+        io::stdin().read_line(&mut selected_monitor)?;
+
+        let selected_monitor = selected_monitor.trim();
+
+        match selected_monitor.parse::<usize>() {
+            Ok(i) => {
+                if i - 1 >= monitors.len() {
+                    bail!("Please choose available monitor only");
+                }
+                wallpaper_service.set_wallpaper(&monitors[i - 1], path.as_path())?;
+            }
+            Err(_) => {
+                bail!("Expected a number input");
+            }
+        }
     }
 
     Ok(())
