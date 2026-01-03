@@ -65,14 +65,14 @@ fn main() -> anyhow::Result<()> {
         let selected_monitor = selected_monitor.trim();
 
         match selected_monitor.parse::<usize>() {
-            Ok(i) => {
-                if i - 1 >= monitors.len() {
-                    bail!("Please choose available monitor only");
-                }
+            Ok(i) if i > 0 && i <= monitors.len() => {
                 wallpaper_service.set_wallpaper(&monitors[i - 1], path.as_path())?;
             }
-            Err(_) => {
-                bail!("Expected a number input");
+            _ => {
+                bail!(
+                    "Invalid input, enter a number between 1 and {}",
+                    monitors.len()
+                );
             }
         }
     }
