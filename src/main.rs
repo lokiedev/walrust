@@ -5,11 +5,12 @@ use ratatui_image::picker::Picker;
 
 use crate::{
     adapters::HyprctlWallpaperService,
-    ports::wallpaper_service_port::WallpaperServicePort,
+    cli::Cli,
     tui::{app::App, messages::Messages},
 };
 
 mod adapters;
+mod cli;
 mod models;
 mod ports;
 mod tui;
@@ -36,7 +37,7 @@ fn main() -> anyhow::Result<()> {
         let app = App::new(
             messages,
             path,
-            monitors[0].clone(),
+            monitors,
             picker,
             HyprctlWallpaperService::new(),
         )?
@@ -44,12 +45,10 @@ fn main() -> anyhow::Result<()> {
 
         ratatui::restore();
 
-        app?;
+        app
     } else {
-        let wallpaper_service: &dyn WallpaperServicePort = &HyprctlWallpaperService::new();
+        let wallpaper_service: HyprctlWallpaperService = HyprctlWallpaperService::new();
 
-        wallpaper_service.set_wallpaper(&monitors[0], path.as_path())?;
+        Cli::run(wallpaper_service, &monitors, &path)
     }
-
-    Ok(())
 }
