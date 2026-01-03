@@ -1,19 +1,16 @@
-use std::{
-    env,
-    io::{self, Write},
-    path::PathBuf,
-};
+use std::{env, path::PathBuf};
 
-use anyhow::{bail, ensure};
+use anyhow::ensure;
 use ratatui_image::picker::Picker;
 
 use crate::{
     adapters::HyprctlWallpaperService,
-    ports::wallpaper_service_port::WallpaperServicePort,
+    cli::Cli,
     tui::{app::App, messages::Messages},
 };
 
 mod adapters;
+mod cli;
 mod models;
 mod ports;
 mod tui;
@@ -48,34 +45,10 @@ fn main() -> anyhow::Result<()> {
 
         ratatui::restore();
 
-        app?;
+        app
     } else {
-        let wallpaper_service: &dyn WallpaperServicePort = &HyprctlWallpaperService::new();
-        let mut selected_monitor = String::new();
+        let wallpaper_service: HyprctlWallpaperService = HyprctlWallpaperService::new();
 
-        println!("Choose monitor to change wallpaper:");
-        for (i, monitor) in monitors.iter().enumerate() {
-            println!("[{}] {monitor}", i + 1);
-        }
-        print!("==> ");
-
-        io::stdout().flush()?;
-        io::stdin().read_line(&mut selected_monitor)?;
-
-        let selected_monitor = selected_monitor.trim();
-
-        match selected_monitor.parse::<usize>() {
-            Ok(i) if i > 0 && i <= monitors.len() => {
-                wallpaper_service.set_wallpaper(&monitors[i - 1], path.as_path())?;
-            }
-            _ => {
-                bail!(
-                    "Invalid input, enter a number between 1 and {}",
-                    monitors.len()
-                );
-            }
-        }
+        Cli::run(wallpaper_service, &monitors, &path)
     }
-
-    Ok(())
 }
