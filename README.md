@@ -1,7 +1,8 @@
 # Walrust
 Open-source terminal-based wallpaper changer for Hyprpaper written in Rust
 
-![](./assets/walrust_demo.gif)
+![walrust_demo](https://github.com/user-attachments/assets/48a7bf51-f3ee-4efb-9078-c60b41a48cd6)
+
 
 Note: Walrust is currently in beta.
 
