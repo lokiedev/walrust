@@ -1,6 +1,7 @@
 use std::{env, path::PathBuf};
 
 use anyhow::ensure;
+use ratatui_image::picker::Picker;
 
 use crate::{
     adapters::HyprctlWallpaperService,
@@ -26,6 +27,7 @@ fn main() -> anyhow::Result<()> {
     ensure!(!monitors.is_empty(), "No monitor detected");
 
     if path.is_dir() {
+        let picker = Picker::from_query_stdio()?;
         let terminal = ratatui::init();
         let mut messages = Messages::new(250);
 
@@ -35,6 +37,7 @@ fn main() -> anyhow::Result<()> {
             messages,
             path,
             monitors[0].clone(),
+            picker,
             HyprctlWallpaperService::new(),
         )?
         .run(terminal);

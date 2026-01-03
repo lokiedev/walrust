@@ -8,6 +8,7 @@ use ratatui::{
     text::Line,
     widgets::Block,
 };
+use ratatui_image::picker::Picker;
 
 use crate::{
     adapters::{ImageDiskRepository, ImageService},
@@ -37,15 +38,18 @@ where
     S: WallpaperServicePort,
 {
     pub fn new(
-        messages: Messages,
+        mut messages: Messages,
         dir_path: PathBuf,
         monitor: String,
+        picker: Picker,
         wallpaper_service: S,
     ) -> Result<Self> {
         let wallpaper_list_component =
             WallpaperListComponent::new(ImageDiskRepository::default(), dir_path)
                 .with_context(|| "Failed to create wallpaper list component")?;
-        let preview_component = PreviewComponent::new(&messages, ImageService {});
+        let preview_component = PreviewComponent::new(picker, &messages, ImageService {})?;
+
+        messages.start_event_listener();
 
         Ok(App {
             quit: false,
