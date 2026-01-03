@@ -37,23 +37,23 @@ impl<A> PreviewComponent<A>
 where
     A: ImageServicePort + Clone + Send + 'static,
 {
-    pub fn new(messages: &Messages, image_service: A) -> Self {
+    pub fn new(picker: Picker, messages: &Messages, image_service: A) -> Result<Self> {
         let image_path_channel = mpsc::channel::<PathBuf>();
 
         Self::spawn_path_request_listener(
             image_service.clone(),
             image_path_channel.1,
             messages.tx.clone(),
-        )
-        .unwrap();
+            picker,
+        )?;
 
-        PreviewComponent {
+        Ok(PreviewComponent {
             image_service,
             image_path: PathBuf::new(),
             protocols: HashMap::new(),
             image_path_tx: image_path_channel.0,
             pending_image_preview: None,
-        }
+        })
     }
 
     pub fn init(&mut self, selected_image_path: PathBuf) -> Result<()> {
@@ -107,10 +107,9 @@ where
         image_service: A,
         image_path_rx: Receiver<PathBuf>,
         image_preview_tx: Sender<Message>,
+        picker: Picker,
     ) -> anyhow::Result<()> {
         thread::spawn(move || {
-            let picker = Picker::from_query_stdio().unwrap();
-
             while let Ok(image_path) = image_path_rx.recv() {
                 let dyn_image = image_service.decode(&image_path);
                 if dyn_image.is_err() {
