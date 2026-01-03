@@ -36,7 +36,7 @@ fn main() -> anyhow::Result<()> {
         let app = App::new(
             messages,
             path,
-            monitors[0].clone(),
+            monitors,
             picker,
             HyprctlWallpaperService::new(),
         )?

@@ -29,7 +29,8 @@ pub struct App<S> {
     preview_component: PreviewComponent<ImageService>,
 
     // Data or states
-    monitor: String,
+    monitors: Vec<String>,
+    selected_monitor: usize,
     quit: bool,
 }
 
@@ -40,7 +41,7 @@ where
     pub fn new(
         mut messages: Messages,
         dir_path: PathBuf,
-        monitor: String,
+        monitors: Vec<String>,
         picker: Picker,
         wallpaper_service: S,
     ) -> Result<Self> {
@@ -52,9 +53,10 @@ where
         messages.start_event_listener();
 
         Ok(App {
+            selected_monitor: 0,
             quit: false,
             messages,
-            monitor,
+            monitors,
             wallpaper_list_component,
             preview_component,
             wallpaper_service,
@@ -90,13 +92,11 @@ where
         let [bordered_area] = Layout::vertical([Constraint::Fill(1)])
             .margin(1)
             .areas(frame.area());
-
         let border_widget = Block::bordered()
             .border_type(ratatui::widgets::BorderType::Rounded)
-            .title(Line::from(self.monitor.clone()).centered());
+            .title(Line::from(self.monitors[self.selected_monitor].clone()).centered());
 
         let inner_area = border_widget.inner(bordered_area);
-
         let [preview_area, list_area] =
             Layout::horizontal([Constraint::Percentage(40), Constraint::Percentage(60)])
                 .areas(inner_area);
@@ -104,7 +104,6 @@ where
         frame.render_widget(Line::from("Select wallpaper"), frame.area());
         frame.render_widget(&border_widget, bordered_area);
         self.wallpaper_list_component.render(frame, list_area);
-
         self.preview_component.render(frame, preview_area);
     }
 
@@ -124,6 +123,14 @@ where
         match key.code {
             KeyCode::Esc | KeyCode::Char('q') => {
                 self.quit = true;
+                Ok(MessageState::Consumed)
+            }
+            KeyCode::Right | KeyCode::Char('l') => {
+                self.select_next();
+                Ok(MessageState::Consumed)
+            }
+            KeyCode::Left | KeyCode::Char('h') => {
+                self.select_previous();
                 Ok(MessageState::Consumed)
             }
             KeyCode::Enter => {
@@ -150,9 +157,27 @@ where
     fn change_wallpaper(&self) -> Result<()> {
         if let Some(image_path) = self.wallpaper_list_component.get_selected() {
             self.wallpaper_service
-                .set_wallpaper(&self.monitor, image_path)?
+                .set_wallpaper(&self.monitors[self.selected_monitor], image_path)?
         }
 
         Ok(())
+    }
+
+    fn select_next(&mut self) {
+        if self.selected_monitor == self.monitors.len() - 1 {
+            self.selected_monitor = 0;
+            return;
+        }
+
+        self.selected_monitor += 1;
+    }
+
+    fn select_previous(&mut self) {
+        if self.selected_monitor == 0 {
+            self.selected_monitor = self.monitors.len() - 1;
+            return;
+        }
+
+        self.selected_monitor -= 1;
     }
 }
