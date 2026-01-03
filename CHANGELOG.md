@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## Added
+- Choose monitor feature ([#5])
+
 ## Fixed
 - Failed to determine correct protocol ([#4])
 - TUI doesn't rerender when the terminal window is resized ([#3])
@@ -35,4 +38,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#1]: https://github.com/lokiedev/walrust/pull/1
 [#2]: https://github.com/lokiedev/walrust/pull/2
 [#3]: https://github.com/lokiedev/walrust/pull/3
-[#4]: https://github/com/lokiedev/walrust/pull/4
+[#4]: https://github.com/lokiedev/walrust/pull/4
+[#5]: https://github.com/lokiedev/walrust/pull/5
