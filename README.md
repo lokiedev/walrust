@@ -1,9 +1,13 @@
 # Walrust
 Open-source terminal-based wallpaper changer for Hyprpaper written in Rust
 
-Note: Walrust is currently in active development, the software is may be unstable.
+![](./assets/walrust_demo.gif)
+
+Note: Walrust is currently in beta.
 
 ## Installation
+
+### Cargo Install
 
 ```bash
 cargo install --git https://github.com/lokiedev/walrust.git
@@ -31,9 +35,25 @@ and then you can run:
 
 ## Usage
 
-- Use up/down arrow key to navigate list, or
-- you can also use vim keybindings (j for down and k for up),
-- click Enter to change wallpaper
+### Running
+Pass a file path to change wallpaper without opening the TUI:
+
+```bash
+walrust ~/pictures/image.jpg
+```
+
+Pass a folder path to open a folder and choose wallpaper:
+
+```bash
+walrust ~/pictures/
+```
+
+Note: Currently Walrust does not support recursive image listing.
+
+### Navigation
+- Use j/Down key to move the cursor down
+- Use k/Up key to move the cursor up
+- Use Enter key to change wallpaper
 
 ## Image Preview
 
