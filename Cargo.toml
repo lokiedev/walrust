@@ -2,7 +2,7 @@
 name = "walrust"
 authors = ["lokiedev"]
 description = "Terminal-based wallpaper changer for Hyprpaper written in Rust"
-version = "1.0.2"
+version = "1.1.2"
 edition = "2024"
 
 [dependencies]
