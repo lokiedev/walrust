@@ -94,14 +94,14 @@ where
             .areas(frame.area());
         let border_widget = Block::bordered()
             .border_type(ratatui::widgets::BorderType::Rounded)
-            .title(Line::from(self.monitors[self.selected_monitor].clone()).centered());
+            .title(Line::from(&*self.monitors[self.selected_monitor]).centered());
 
         let inner_area = border_widget.inner(bordered_area);
         let [preview_area, list_area] =
             Layout::horizontal([Constraint::Percentage(40), Constraint::Percentage(60)])
                 .areas(inner_area);
 
-        frame.render_widget(Line::from("Select wallpaper"), frame.area());
+        frame.render_widget("Select wallpaper", frame.area());
         frame.render_widget(&border_widget, bordered_area);
         self.wallpaper_list_component.render(frame, list_area);
         self.preview_component.render(frame, preview_area);
