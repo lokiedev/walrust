@@ -14,6 +14,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Failed to determine correct protocol ([#4])
 - TUI doesn't rerender when the terminal window is resized ([#3])
 
+## Improved
+- Better pending image preview system ([#7])
+- Less memory usage by implementing Least Recently Used Cache ([#6])
+
 ## [1.0.2] - 2026-01-02
 
 ## Added
@@ -40,3 +44,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#3]: https://github.com/lokiedev/walrust/pull/3
 [#4]: https://github.com/lokiedev/walrust/pull/4
 [#5]: https://github.com/lokiedev/walrust/pull/5
+[#6]: https://github.com/lokiedev/walrust/pull/6
+[#7]: https://github.com/lokiedev/walrust/pull/7
