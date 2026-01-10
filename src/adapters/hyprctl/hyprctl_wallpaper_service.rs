@@ -1,11 +1,12 @@
+use anyhow::{Context, Result, ensure};
 use std::{
     path::Path,
     process::{Command, Output},
 };
 
-use anyhow::{Context, Result, ensure};
-
 use crate::ports::wallpaper_service_port::WallpaperServicePort;
+
+use super::utils;
 
 pub struct HyprctlWallpaperService {}
 
@@ -13,36 +14,21 @@ impl HyprctlWallpaperService {
     pub fn new() -> Self {
         Self {}
     }
-
-    // Hyprctl sends its error output to stdout instead of stderr.
-    // So to get the error message, you can use the stdout only,
-    // or you can handle both for example:
-    // if output.stderr.is_empty() {
-    //    do something with the stdout
-    // } else {
-    //    do something with the stderr
-    // }
-    fn hyprctl(args: &[&str]) -> Result<Output> {
-        Command::new("hyprctl")
-            .args(args)
-            .output()
-            .context("Failed to run hyprctl command")
-    }
 }
 
 impl WallpaperServicePort for HyprctlWallpaperService {
     fn set_wallpaper(&self, monitor_name: &str, path: &Path) -> Result<()> {
         let command = "hyprpaper";
 
-        let _ = Self::hyprctl(&[command, "unload", "all"])
+        let _ = utils::hyprctl(&[command, "unload", "all"])
             .with_context(|| format!("Failed to unload all {} images", command))?;
 
         let path_string = path.display().to_string();
 
-        let _ = Self::hyprctl(&[command, "preload", &path_string])
+        let _ = utils::hyprctl(&[command, "preload", &path_string])
             .with_context(|| format!("Failed to preload {} to {}", &path_string, command))?;
 
-        let change_wallpaper_output = Self::hyprctl(&[
+        let change_wallpaper_output = utils::hyprctl(&[
             command,
             "wallpaper",
             &format!("{}, {}", monitor_name, path_string),
