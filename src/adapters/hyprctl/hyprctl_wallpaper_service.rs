@@ -1,8 +1,5 @@
 use anyhow::{Context, Result, ensure};
-use std::{
-    path::Path,
-    process::{Command, Output},
-};
+use std::path::Path;
 
 use crate::ports::wallpaper_service_port::WallpaperServicePort;
 
