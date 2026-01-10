@@ -3,8 +3,7 @@ use std::{
     process::{Command, Output},
 };
 
-use anyhow::{Context, Result, anyhow, ensure};
-use serde_json::Value;
+use anyhow::{Context, Result, ensure};
 
 use crate::ports::wallpaper_service_port::WallpaperServicePort;
 
