@@ -1,3 +1,3 @@
 pub trait MonitorProviderPort {
-    fn get_monitors() -> anyhow::Result<Vec<String>>;
+    fn get_monitors(&self) -> anyhow::Result<Vec<String>>;
 }
