@@ -4,7 +4,9 @@ use anyhow::ensure;
 use ratatui_image::picker::Picker;
 
 use crate::{
-    adapters::{HyprctlMonitorProvider, HyprctlWallpaperService, MonitorProvider},
+    adapters::{
+        HyprctlMonitorProvider, HyprctlWallpaperService, MonitorProvider, WallpaperService,
+    },
     cli::Cli,
     ports::MonitorProviderPort,
     tui::{app::App, messages::Messages},
@@ -40,7 +42,7 @@ fn main() -> anyhow::Result<()> {
             path,
             monitors,
             picker,
-            HyprctlWallpaperService::new(),
+            WallpaperService::Hyprctl(HyprctlWallpaperService),
         )?
         .run(terminal);
 
@@ -48,7 +50,8 @@ fn main() -> anyhow::Result<()> {
 
         app
     } else {
-        let wallpaper_service: HyprctlWallpaperService = HyprctlWallpaperService::new();
+        let wallpaper_service: WallpaperService =
+            WallpaperService::Hyprctl(HyprctlWallpaperService);
 
         Cli::run(wallpaper_service, &monitors, &path)
     }
