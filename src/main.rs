@@ -4,7 +4,7 @@ use anyhow::ensure;
 use ratatui_image::picker::Picker;
 
 use crate::{
-    adapters::{HyprctlWallpaperService, MonitorProvider, hyprctl::HyprctlMonitorProvider},
+    adapters::{HyprctlMonitorProvider, HyprctlWallpaperService, MonitorProvider},
     cli::Cli,
     ports::MonitorProviderPort,
     tui::{app::App, messages::Messages},
