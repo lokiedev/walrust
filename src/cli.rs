@@ -5,13 +5,13 @@ use std::{
 
 use anyhow::{Context, Result, ensure};
 
-use crate::ports::WallpaperServicePort;
+use crate::{adapters::WallpaperService, ports::WallpaperServicePort};
 
 pub struct Cli {}
 
 impl Cli {
-    pub fn run<T: WallpaperServicePort>(
-        wallpaper_service: T,
+    pub fn run(
+        wallpaper_service: WallpaperService,
         monitors: &[String],
         image_path: &Path,
     ) -> Result<()> {

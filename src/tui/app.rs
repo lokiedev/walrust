@@ -11,7 +11,7 @@ use ratatui::{
 use ratatui_image::picker::Picker;
 
 use crate::{
-    adapters::{ImageDiskRepository, ImageService},
+    adapters::{ImageDiskRepository, ImageService, WallpaperService},
     ports::WallpaperServicePort,
     tui::{
         PreviewComponent, WallpaperListComponent,
@@ -19,10 +19,10 @@ use crate::{
     },
 };
 
-pub struct App<S> {
+pub struct App {
     // Dependencies
     messages: Messages,
-    wallpaper_service: S,
+    wallpaper_service: WallpaperService,
 
     // Components
     wallpaper_list_component: WallpaperListComponent,
@@ -34,16 +34,13 @@ pub struct App<S> {
     quit: bool,
 }
 
-impl<S> App<S>
-where
-    S: WallpaperServicePort,
-{
+impl App {
     pub fn new(
         mut messages: Messages,
         dir_path: PathBuf,
         monitors: Vec<String>,
         picker: Picker,
-        wallpaper_service: S,
+        wallpaper_service: WallpaperService,
     ) -> Result<Self> {
         let wallpaper_list_component =
             WallpaperListComponent::new(ImageDiskRepository::default(), dir_path)
