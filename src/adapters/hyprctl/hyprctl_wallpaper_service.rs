@@ -5,7 +5,7 @@ use crate::ports::wallpaper_service_port::WallpaperServicePort;
 
 use super::utils;
 
-pub struct HyprctlWallpaperService {}
+pub struct HyprctlWallpaperService;
 
 impl HyprctlWallpaperService {
     pub fn new() -> Self {

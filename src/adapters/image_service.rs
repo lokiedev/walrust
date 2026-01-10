@@ -6,7 +6,7 @@ use image::{DynamicImage, ImageReader};
 use crate::ports::image_service_port::ImageServicePort;
 
 #[derive(Clone)]
-pub struct ImageService {}
+pub struct ImageService;
 
 impl ImageServicePort for ImageService {
     fn decode(&self, path: &Path) -> Result<DynamicImage> {
