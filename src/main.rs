@@ -4,8 +4,9 @@ use anyhow::ensure;
 use ratatui_image::picker::Picker;
 
 use crate::{
-    adapters::HyprctlWallpaperService,
+    adapters::{HyprctlWallpaperService, MonitorProvider, hyprctl::HyprctlMonitorProvider},
     cli::Cli,
+    ports::MonitorProviderPort,
     tui::{app::App, messages::Messages},
 };
 
@@ -24,7 +25,7 @@ fn main() -> anyhow::Result<()> {
 
     ensure!(path.exists(), "No such file or directory");
 
-    let monitors = HyprctlWallpaperService::get_monitor_names()?;
+    let monitors = MonitorProvider::Hyprctl(HyprctlMonitorProvider).get_monitors()?;
     ensure!(!monitors.is_empty(), "No monitor detected");
 
     if path.is_dir() {
