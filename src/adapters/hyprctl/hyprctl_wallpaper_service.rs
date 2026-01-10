@@ -7,12 +7,6 @@ use super::utils;
 
 pub struct HyprctlWallpaperService;
 
-impl HyprctlWallpaperService {
-    pub fn new() -> Self {
-        Self {}
-    }
-}
-
 impl WallpaperServicePort for HyprctlWallpaperService {
     fn set_wallpaper(&self, monitor_name: &str, path: &Path) -> Result<()> {
         let command = "hyprpaper";
