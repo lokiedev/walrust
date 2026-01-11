@@ -7,7 +7,7 @@ pub enum MonitorProvider {
 }
 
 impl MonitorProvider {
-    fn from(desktop: Desktop) -> Option<Self> {
+    pub fn from(desktop: &Desktop) -> Option<Self> {
         match desktop {
             Desktop::Hyprland => Some(MonitorProvider::Hyprctl(HyprctlMonitorProvider)),
             _ => None,

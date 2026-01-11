@@ -7,7 +7,7 @@ pub enum WallpaperService {
 }
 
 impl WallpaperService {
-    fn from(desktop: Desktop) -> Option<Self> {
+    pub fn from(desktop: &Desktop) -> Option<Self> {
         match desktop {
             Desktop::Hyprland => Some(WallpaperService::Hyprctl(HyprctlWallpaperService)),
             _ => None,

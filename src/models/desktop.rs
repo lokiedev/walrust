@@ -39,7 +39,7 @@ impl Desktop {
         Desktop::Unknown
     }
 
-    fn is_unknown(&self) -> bool {
+    pub fn is_unknown(&self) -> bool {
         matches!(*self, Desktop::Unknown)
     }
 }

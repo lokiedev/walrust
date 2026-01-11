@@ -1,13 +1,12 @@
 use std::{env, path::PathBuf};
 
-use anyhow::ensure;
+use anyhow::{anyhow, ensure};
 use ratatui_image::picker::Picker;
 
 use crate::{
-    adapters::{
-        HyprctlMonitorProvider, HyprctlWallpaperService, MonitorProvider, WallpaperService,
-    },
+    adapters::{MonitorProvider, WallpaperService},
     cli::Cli,
+    models::desktop::Desktop,
     ports::MonitorProviderPort,
     tui::{app::App, messages::Messages},
 };
@@ -27,8 +26,16 @@ fn main() -> anyhow::Result<()> {
 
     ensure!(path.exists(), "No such file or directory");
 
-    let monitors = MonitorProvider::Hyprctl(HyprctlMonitorProvider).get_monitors()?;
+    let desktop = Desktop::detect();
+    ensure!(!desktop.is_unknown(), "Your WM is unknown or not supported");
+
+    let monitors = MonitorProvider::from(&desktop)
+        .ok_or(anyhow!("Your WM is not supported"))?
+        .get_monitors()?;
     ensure!(!monitors.is_empty(), "No monitor detected");
+
+    let wallpaper_service =
+        WallpaperService::from(&desktop).ok_or(anyhow!("Your WM is not supported"))?;
 
     if path.is_dir() {
         let picker = Picker::from_query_stdio()?;
@@ -37,22 +44,12 @@ fn main() -> anyhow::Result<()> {
 
         messages.start_event_listener();
 
-        let app = App::new(
-            messages,
-            path,
-            monitors,
-            picker,
-            WallpaperService::Hyprctl(HyprctlWallpaperService),
-        )?
-        .run(terminal);
+        let app = App::new(messages, path, monitors, picker, wallpaper_service)?.run(terminal);
 
         ratatui::restore();
 
         app
     } else {
-        let wallpaper_service: WallpaperService =
-            WallpaperService::Hyprctl(HyprctlWallpaperService);
-
         Cli::run(wallpaper_service, &monitors, &path)
     }
 }
