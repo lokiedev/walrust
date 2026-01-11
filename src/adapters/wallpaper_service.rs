@@ -1,7 +1,18 @@
-use crate::{adapters::HyprctlWallpaperService, ports::WallpaperServicePort};
+use crate::{
+    adapters::HyprctlWallpaperService, models::desktop::Desktop, ports::WallpaperServicePort,
+};
 
 pub enum WallpaperService {
     Hyprctl(HyprctlWallpaperService),
+}
+
+impl WallpaperService {
+    fn from(desktop: Desktop) -> Option<Self> {
+        match desktop {
+            Desktop::Hyprland => Some(WallpaperService::Hyprctl(HyprctlWallpaperService)),
+            _ => None,
+        }
+    }
 }
 
 impl WallpaperServicePort for WallpaperService {
